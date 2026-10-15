@@ -3,21 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Metabolic Health & Sugar Portal</title>
+  <title>Metabolic Health & Sugar Portal - Daily Locked Protocol</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase Compat SDKs (Easiest for standalone HTML) -->
+  <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <style>
+    details summary::-webkit-details-marker { display: none; }
+    details[open] summary .accordion-chevron { transform: rotate(180deg); }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-16">
 
-  <!-- Top Header & Firebase Connection Status -->
+  <!-- Header & Connection Status -->
   <header class="bg-indigo-900 text-white shadow-md">
-    <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-3">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-3">
       <div>
         <h1 class="text-xl md:text-2xl font-bold tracking-tight">🩺 GlycoFit Health Portal</h1>
-        <p class="text-xs text-indigo-200">Sugar (ICMR/RSSDI Standards), Hydration & Nutrition Tracker</p>
+        <p class="text-xs text-indigo-200">6x Sugar, 2-Hr Hydration Protocol & Meals — Daily Single-Entry Lock</p>
       </div>
       <!-- Connection Status Badge -->
       <div id="firebase-status" class="px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 bg-yellow-500/20 text-yellow-300 border border-yellow-400">
@@ -27,38 +31,49 @@
     </div>
   </header>
 
-  <main class="max-w-5xl mx-auto px-4 mt-6">
+  <main class="max-w-6xl mx-auto px-4 mt-6">
 
     <!-- Navigation Tabs -->
     <div class="flex flex-wrap gap-2 border-b border-slate-300 mb-6">
       <button onclick="switchTab('sugar')" id="tab-btn-sugar" class="tab-btn px-4 py-2 font-medium text-sm rounded-t-lg bg-white border-t-2 border-indigo-600 text-indigo-700 shadow-sm">
-        🩸 Sugar Monitor (6x)
+        🩸 Sugar Monitor (6x Locked)
       </button>
       <button onclick="switchTab('water')" id="tab-btn-water" class="tab-btn px-4 py-2 font-medium text-sm rounded-t-lg bg-slate-200 text-slate-600 hover:bg-white">
-        💧 Water Log
+        💧 Water Schedule (~2 Hr Locked)
       </button>
       <button onclick="switchTab('food')" id="tab-btn-food" class="tab-btn px-4 py-2 font-medium text-sm rounded-t-lg bg-slate-200 text-slate-600 hover:bg-white">
-        🥗 Food & Diet
+        🥗 Food & Diet (Locked Meals)
       </button>
       <button onclick="switchTab('report')" id="tab-btn-report" class="tab-btn px-4 py-2 font-medium text-sm rounded-t-lg bg-slate-200 text-slate-600 hover:bg-white">
-        📊 Daily AI Report
+        📊 Daily AI Report & Datewise Archive
       </button>
     </div>
 
-    <!-- ==================== TAB 1: SUGAR MONITOR ==================== -->
+    <!-- ==================== TAB 1: SUGAR MONITOR (6x LOCKED) ==================== -->
     <section id="tab-sugar" class="tab-content space-y-6">
+      
+      <!-- Visual Checkpoints Lock Tracker -->
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-lg font-bold text-slate-800 mb-3">Record Blood Glucose (mg/dL)</h2>
-        <form id="sugar-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Time Slot (6 Daily Checkpoints)</label>
+            <h2 class="text-lg font-bold text-slate-800">Today's 6 Sugar Checkpoints Protocol</h2>
+            <p class="text-xs text-slate-500">Each checkpoint can be recorded <strong>strictly once per day</strong> and then locks automatically.</p>
+          </div>
+          <span id="sugar-lock-count" class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800">
+            0/6 Locked Today
+          </span>
+        </div>
+
+        <div id="sugar-slots-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-4">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Sugar Input Form -->
+        <form id="sugar-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Select Checkpoint Slot</label>
             <select id="sugar-slot" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500" required>
-              <option value="Morning Before Food">1. Morning Before Food (Fasting)</option>
-              <option value="Morning After Food">2. Morning After Food (Post-Breakfast)</option>
-              <option value="Noon Before Food">3. Noon Before Food (Pre-Lunch)</option>
-              <option value="Noon After Food">4. Noon After Food (Post-Lunch)</option>
-              <option value="Evening/Night Before Food">5. Evening Before Food (Pre-Dinner)</option>
-              <option value="Evening/Night After Food">6. Evening After Food (Post-Dinner)</option>
+              <!-- Options populated and dynamically disabled once logged -->
             </select>
           </div>
           <div>
@@ -66,21 +81,20 @@
             <input type="number" id="sugar-value" min="30" max="600" placeholder="e.g. 110" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500" required />
           </div>
           <div class="flex items-end">
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg text-sm shadow">
-              Save Reading
+            <button id="sugar-submit-btn" type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg text-sm shadow">
+              🔒 Record & Lock Slot
             </button>
           </div>
         </form>
 
-        <!-- Indian Standard Reference Guide -->
         <div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs grid grid-cols-1 md:grid-cols-3 gap-2">
           <div><strong class="text-emerald-700">Good:</strong> Fasting &lt;100 | Post-meal &lt;140 mg/dL</div>
           <div><strong class="text-amber-600">Moderate:</strong> Fasting 100-125 | Post-meal 140-199 mg/dL</div>
-          <div><strong class="text-rose-700">Terror (Danger):</strong> Fasting &gt;125 | Post-meal &ge;200 | &lt;70 (Hypo)</div>
+          <div><strong class="text-rose-700">Terror:</strong> Fasting &gt;125 | Post-meal &ge;200 | &lt;70 (Hypo)</div>
         </div>
       </div>
 
-      <!-- Previous Records -->
+      <!-- Previous Sugar Records -->
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
         <h3 class="text-md font-bold text-slate-800 mb-3">Previous Sugar Records</h3>
         <div class="overflow-x-auto">
@@ -91,6 +105,7 @@
                 <th class="p-2.5">Slot</th>
                 <th class="p-2.5">Reading</th>
                 <th class="p-2.5">Indian Status</th>
+                <th class="p-2.5">Daily Status</th>
               </tr>
             </thead>
             <tbody id="sugar-table-body" class="divide-y divide-slate-100"></tbody>
@@ -99,38 +114,42 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 2: WATER LOG ==================== -->
+    <!-- ==================== TAB 2: WATER SCHEDULE (EVERY 2 HRS LOCKED) ==================== -->
     <section id="tab-water" class="tab-content hidden space-y-6">
+      
+      <!-- Timed Hydration Protocol Grid -->
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-lg font-bold text-slate-800 mb-3">Record Water Consumption</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Water Consumed (ml)</label>
-            <input type="number" id="water-amount" step="50" min="50" max="2000" placeholder="e.g. 250" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <h2 class="text-lg font-bold text-slate-800">💧 Timed Hydration Schedule (3,000 ml Protocol)</h2>
+            <p class="text-xs text-slate-500">Drink suggested quantities at 2-hour intervals. Lock each slot once completed for today.</p>
           </div>
-          <div class="flex items-end gap-2">
-            <button onclick="logWater(250)" class="w-1/2 bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium py-2 rounded-lg text-sm">+250 ml (Glass)</button>
-            <button onclick="logWater(500)" class="w-1/2 bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium py-2 rounded-lg text-sm">+500 ml (Bottle)</button>
-          </div>
-          <div class="flex items-end">
-            <button onclick="submitWaterInput()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-sm shadow">Add Custom ML</button>
+          <div class="text-right">
+            <span id="water-today-total-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">0 / 3000 ml</span>
           </div>
         </div>
 
-        <!-- Suggestion / Target Status -->
-        <div id="water-status-box" class="p-4 rounded-lg bg-blue-50 border border-blue-200">
-          <div class="flex justify-between items-center mb-1 text-sm font-semibold text-blue-900">
-            <span>Today's Total: <span id="water-today-total">0</span> / 3000 ml</span>
-            <span id="water-needy-tag" class="text-xs px-2 py-0.5 rounded-full bg-amber-200 text-amber-800">Needy</span>
+        <!-- Overall Day Hydration Progress -->
+        <div class="w-full bg-blue-100 h-2.5 rounded-full overflow-hidden mb-6">
+          <div id="water-progress-bar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
+        </div>
+
+        <!-- 2-Hour Interval Schedule Cards -->
+        <div id="water-schedule-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <!-- Populated dynamically via JS with schedule times, quantities, benefits, and lock buttons -->
+        </div>
+
+        <!-- Optional custom logging fallback -->
+        <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          <span>Need an unscheduled sip? Add custom quantity:</span>
+          <div class="flex items-center gap-2">
+            <input type="number" id="water-custom-amount" placeholder="ml" step="50" min="50" max="1000" class="border rounded px-2 py-1 w-24 text-slate-800" />
+            <button onclick="logCustomWater()" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-1 rounded font-semibold">+ Log Custom</button>
           </div>
-          <div class="w-full bg-blue-200 h-2.5 rounded-full overflow-hidden">
-            <div id="water-progress-bar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
-          </div>
-          <p id="water-suggestion-text" class="text-xs text-blue-800 mt-2 font-medium leading-relaxed"></p>
         </div>
       </div>
 
-      <!-- Water Previous Records -->
+      <!-- Previous Water Logs -->
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
         <h3 class="text-md font-bold text-slate-800 mb-3">Previous Water Logs</h3>
         <div class="overflow-x-auto">
@@ -138,7 +157,9 @@
             <thead class="bg-slate-100 text-slate-600 border-b">
               <tr>
                 <th class="p-2.5">Timestamp (dd/mm/yyyy ss:mm:hh)</th>
+                <th class="p-2.5">Schedule Slot</th>
                 <th class="p-2.5">Quantity (ml)</th>
+                <th class="p-2.5">Status</th>
               </tr>
             </thead>
             <tbody id="water-table-body" class="divide-y divide-slate-100"></tbody>
@@ -147,29 +168,40 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 3: FOOD CONSUMPTION ==================== -->
+    <!-- ==================== TAB 3: FOOD & DIET (MEAL TYPE LOCKED) ==================== -->
     <section id="tab-food" class="tab-content hidden space-y-6">
+      
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-lg font-bold text-slate-800 mb-3">Record Meals & Diet Intake</h2>
-        <form id="food-form" class="space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Record Daily Meals & Diet Intake</h2>
+            <p class="text-xs text-slate-500">Each meal type locks once recorded for today to prevent accidental double-logging.</p>
+          </div>
+          <span id="food-lock-count" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+            0/5 Meals Logged Today
+          </span>
+        </div>
+
+        <!-- Visual Meal Cards Indicator -->
+        <div id="meal-slots-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <form id="food-form" class="space-y-4 pt-4 border-t border-slate-100">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Meal Type</label>
-              <select id="food-meal-type" class="w-full border rounded-lg px-3 py-2 text-sm" required>
-                <option value="Breakfast">Breakfast</option>
-                <option value="Mid-Morning Snack">Mid-Morning Snack</option>
-                <option value="Lunch">Lunch</option>
-                <option value="Evening Snacks">Evening Snacks</option>
-                <option value="Dinner">Dinner</option>
+              <select id="food-meal-type" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500" required>
+                <!-- Populated & locked dynamically -->
               </select>
             </div>
             <div class="md:col-span-2">
               <label class="block text-xs font-semibold text-slate-600 mb-1">What did you eat?</label>
-              <input type="text" id="food-desc" placeholder="e.g. 2 Idli with sambar, 1 cup curd, no sugar tea" class="w-full border rounded-lg px-3 py-2 text-sm" required />
+              <input type="text" id="food-desc" placeholder="e.g. 2 Ragi dosas with mint chutney, 1 bowl dal" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500" required />
             </div>
           </div>
-          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded-lg text-sm shadow">
-            Save Food & Analyze
+          <button id="food-submit-btn" type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded-lg text-sm shadow">
+            🔒 Save & Lock Meal
           </button>
         </form>
 
@@ -178,7 +210,7 @@
         </div>
       </div>
 
-      <!-- Food Previous Records -->
+      <!-- Previous Food Records -->
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
         <h3 class="text-md font-bold text-slate-800 mb-3">Previous Food Records</h3>
         <div class="overflow-x-auto">
@@ -197,79 +229,100 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 4: DAILY REPORTS & AI SUGGESTIONS ==================== -->
+    <!-- ==================== TAB 4: DAILY AI REPORT & DATEWISE ARCHIVE ==================== -->
     <section id="tab-report" class="tab-content hidden space-y-6">
+
+      <!-- Today's Lock Compliance & Overview -->
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-bold text-slate-800">Comprehensive Daily Health Analysis</h2>
-          <button onclick="renderDailyReport()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold px-3 py-1.5 rounded">Refresh Report</button>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+          <div>
+            <h2 class="text-xl font-black text-slate-800">📊 Daily Protocol & Intelligence Report</h2>
+            <p class="text-xs text-slate-500 font-medium">Date: <span id="rep-today-date" class="font-bold text-indigo-700"></span></p>
+          </div>
+          <button onclick="renderDailyReport()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-2 rounded shadow">
+            🔄 Refresh Analytics
+          </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <!-- Protocol Lock Compliance Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
           <div class="p-4 bg-slate-50 border rounded-xl">
-            <div class="text-xs text-slate-500 font-semibold">Average Sugar Today</div>
-            <div id="rep-avg-sugar" class="text-2xl font-black text-slate-800 mt-1">-- mg/dL</div>
-            <div id="rep-sugar-status" class="text-xs mt-1 font-bold">No data yet</div>
+            <div class="text-xs text-slate-500 font-semibold uppercase">Sugar Checkpoints</div>
+            <div id="rep-sugar-lock-stat" class="text-2xl font-black text-slate-800 mt-1">0/6 Locked</div>
+            <div id="rep-avg-sugar" class="text-xs mt-1 font-bold text-slate-600">Avg: -- mg/dL</div>
           </div>
           <div class="p-4 bg-slate-50 border rounded-xl">
-            <div class="text-xs text-slate-500 font-semibold">Today's Hydration</div>
-            <div id="rep-water" class="text-2xl font-black text-slate-800 mt-1">0 ml</div>
-            <div id="rep-water-status" class="text-xs mt-1 text-amber-600 font-semibold">Action needed</div>
+            <div class="text-xs text-slate-500 font-semibold uppercase">Timed Hydration Lock</div>
+            <div id="rep-water-lock-stat" class="text-2xl font-black text-slate-800 mt-1">0/7 Slots</div>
+            <div id="rep-water" class="text-xs mt-1 font-bold text-blue-700">0 / 3000 ml</div>
           </div>
           <div class="p-4 bg-slate-50 border rounded-xl">
-            <div class="text-xs text-slate-500 font-semibold">Meals Logged Today</div>
-            <div id="rep-meal-count" class="text-2xl font-black text-slate-800 mt-1">0</div>
-            <div class="text-xs mt-1 text-slate-500">Track all 3 major meals</div>
+            <div class="text-xs text-slate-500 font-semibold uppercase">Meals Lock Status</div>
+            <div id="rep-meal-lock-stat" class="text-2xl font-black text-slate-800 mt-1">0/5 Locked</div>
+            <div class="text-xs mt-1 text-slate-500">Single entry per meal active</div>
           </div>
         </div>
 
-        <!-- AI Metabolic Advisory -->
-        <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
-          <h3 class="text-sm font-bold text-indigo-900 mb-2 flex items-center gap-1.5">
-            🤖 AI Metabolic & Triglyceride Advice
+        <!-- Live Spikes Banner for Today -->
+        <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl">
+          <h3 class="text-sm font-bold text-rose-900 mb-2 flex items-center gap-2">
+            <span>🚨</span> Today's Sugar Spike Summary & Preceding Meals
           </h3>
-          <div id="ai-daily-recommendations" class="text-xs text-indigo-950 space-y-2 leading-relaxed">
-            Awaiting data inputs to formulate personalized recommendations...
+          <div id="today-spikes-live-container" class="space-y-2 text-xs">
+            <!-- Populated via JS -->
           </div>
         </div>
       </div>
+
+      <!-- DATEWISE COLLAPSIBLE RECORDS ARCHIVE (BY DEFAULT COLLAPSED) -->
+      <div class="space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <div>
+            <h3 class="text-lg font-bold text-slate-800">📅 Daily Records Archive (Datewise Collapsible)</h3>
+            <p class="text-xs text-slate-500">Summary of all logs organized datewise. Click any date to expand full checkpoints.</p>
+          </div>
+          <div class="flex gap-2 text-xs">
+            <button onclick="toggleAllAccordions(true)" class="bg-slate-200 hover:bg-slate-300 px-2.5 py-1 rounded font-semibold text-slate-700">Expand All</button>
+            <button onclick="toggleAllAccordions(false)" class="bg-slate-200 hover:bg-slate-300 px-2.5 py-1 rounded font-semibold text-slate-700">Collapse All</button>
+          </div>
+        </div>
+
+        <!-- Container for Collapsible Datewise Cards (Default Collapsed) -->
+        <div id="datewise-collapsible-container" class="space-y-3"></div>
+      </div>
+
     </section>
 
   </main>
 
   <script>
     /* ====================================================================
-       1. FIREBASE CONFIGURATION
-       Replace the keys below with your Firebase Console Project credentials:
-       Firebase Console -> Project Settings -> General -> Your Apps -> Web app
+       1. FIREBASE CONFIGURATION (REPLACE WITH YOUR KEYS IF NEEDED)
     ==================================================================== */
     const firebaseConfig = {
       apiKey: "AIzaSyB-11zqsKFC-FupM2rA04o27h0kuBhINmc",
-  authDomain: "my-doctor-b360a.firebaseapp.com",
-  projectId: "my-doctor-b360a",
-  storageBucket: "my-doctor-b360a.firebasestorage.app",
-  messagingSenderId: "857935252223",
-  appId: "1:857935252223:web:84e76a78218ea623f3daca"
-    };
+      authDomain: "my-doctor-b360a.firebaseapp.com",
+      projectId: "my-doctor-b360a",
+      storageBucket: "my-doctor-b360a.firebasestorage.app",
+      messagingSenderId: "857935252223",
+      appId: "1:857935252223:web:84e76a78218ea623f3daca"
+      };
 
     let db = null;
     let isFirebaseActive = false;
 
-    // Check & Initialize Firebase
     function initFirebase() {
       const statusBadge = document.getElementById("firebase-status");
-      
       const isConfigured = firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("YOUR_API_KEY");
 
       if (isConfigured) {
         try {
           firebase.initializeApp(firebaseConfig);
           db = firebase.firestore();
-          // Test ping
           db.collection("_ping").limit(1).get().then(() => {
             isFirebaseActive = true;
             statusBadge.className = "px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-400";
-            statusBadge.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span><span>Firestore Connected</span>`;
+            statusBadge.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span><span>Database Connected</span>`;
             fetchAllData();
           }).catch(err => {
             setDemoMode("Firebase Auth/Permission Error. Using Local Storage.");
@@ -278,7 +331,7 @@
           setDemoMode("Firebase Init Failed. Using Local Storage.");
         }
       } else {
-        setDemoMode("Demo Mode: LocalStorage (Paste Firebase Keys in script to connect)");
+        setDemoMode("Demo Mode: LocalStorage (Add Firebase Keys in Script)");
       }
     }
 
@@ -291,7 +344,38 @@
     }
 
     /* ====================================================================
-       2. TIMESTAMP UTILITY: Strict format requested: dd/mm/yyyy and ss:mm:hh
+       2. PROTOCOL DEFINITIONS & LOCK MAPS
+    ==================================================================== */
+    const SUGAR_CHECKPOINTS = [
+      "Morning Before Food",
+      "Morning After Food",
+      "Noon Before Food",
+      "Noon After Food",
+      "Evening/Night Before Food",
+      "Evening/Night After Food"
+    ];
+
+    const MEAL_TYPES = [
+      "Breakfast",
+      "Mid-Morning Snack",
+      "Lunch",
+      "Evening Snacks",
+      "Dinner"
+    ];
+
+    // Hydration schedule (spaced every ~2 hours, 3000 ml total)
+    const WATER_SCHEDULE = [
+      { id: "W1", time: "07:00 AM", slotName: "Wake-up Cleanser", amount: 500, benefit: "Clears toxins, kickstarts renal filtration after sleep." },
+      { id: "W2", time: "09:30 AM", slotName: "Post-Breakfast Hydration", amount: 250, benefit: "2 hrs post-food; reduces blood viscosity." },
+      { id: "W3", time: "12:00 PM", slotName: "Pre-Lunch Hydration", amount: 500, benefit: "30 min pre-meal; softens glycemic surge & prevents overeating." },
+      { id: "W4", time: "02:30 PM", slotName: "Post-Lunch Dilution", amount: 500, benefit: "Dilutes circulating postprandial glucose & triglycerides." },
+      { id: "W5", time: "05:00 PM", slotName: "Evening Refreshment", amount: 500, benefit: "Combats late fatigue & halts false carbohydrate hunger." },
+      { id: "W6", time: "07:30 PM", slotName: "Pre-Dinner Hydration", amount: 500, benefit: "30 min pre-dinner; promotes portion control." },
+      { id: "W7", time: "09:30 PM", slotName: "Bedtime Hydration", amount: 250, benefit: "1 hr before bed; prevents nocturnal dehydration & leg cramps." }
+    ];
+
+    /* ====================================================================
+       3. TIMESTAMP & DATE UTILITIES (Format: dd/mm/yyyy ss:mm:hh)
     ==================================================================== */
     function getFormattedTimestamp(date = new Date()) {
       const pad = (n) => String(n).padStart(2, '0');
@@ -303,7 +387,6 @@
       const min = pad(date.getMinutes());
       const hh = pad(date.getHours());
 
-      // dd/mm/yyyy and ss:mm:hh format as strictly requested
       return `${dd}/${mm}/${yyyy} ${ss}:${min}:${hh}`;
     }
 
@@ -313,46 +396,43 @@
     }
 
     /* ====================================================================
-       3. INDIAN STANDARDS EVALUATION (ICMR / RSSDI)
+       4. INDIAN STANDARDS EVALUATION (ICMR / RSSDI)
     ==================================================================== */
     function evaluateIndianSugarStandard(reading, slot) {
       const val = parseFloat(reading);
       const isFastingOrPreMeal = slot.toLowerCase().includes("before");
 
-      // Critical Hypoglycemia alert
       if (val < 70) {
-        return { label: "Terror (Severe Low)", color: "bg-red-600 text-white animate-pulse", advice: "High hypoglycemia risk! Consume 15g fast sugar (glucose/juice) immediately." };
+        return { label: "Terror (Severe Low)", color: "bg-red-600 text-white animate-pulse", isSpike: false, advice: "Hypoglycemia risk! Take 15g fast sugar." };
       }
 
       if (isFastingOrPreMeal) {
         if (val <= 99) {
-          return { label: "Good", color: "bg-emerald-100 text-emerald-800 font-bold", advice: "Normal healthy fasting level as per Indian guidelines." };
+          return { label: "Good", color: "bg-emerald-100 text-emerald-800 font-bold", isSpike: false, advice: "Normal healthy fasting baseline." };
         } else if (val >= 100 && val <= 125) {
-          return { label: "Moderate (Prediabetic)", color: "bg-amber-100 text-amber-800 font-bold", advice: "Impaired Fasting Glucose. Watch evening carb & late dinners." };
+          return { label: "Moderate (Prediabetic)", color: "bg-amber-100 text-amber-800 font-bold", isSpike: true, advice: "Impaired Fasting Glucose." };
         } else {
-          return { label: "Terror", color: "bg-rose-600 text-white font-black animate-pulse", advice: "Uncontrolled high fasting reading! Consult physician and review diet." };
+          return { label: "Terror", color: "bg-rose-600 text-white font-black animate-pulse", isSpike: true, advice: "Critical Fasting Spike!" };
         }
       } else {
-        // Post-Meal (Postprandial)
         if (val < 140) {
-          return { label: "Good", color: "bg-emerald-100 text-emerald-800 font-bold", advice: "Healthy glycemic control following meal." };
+          return { label: "Good", color: "bg-emerald-100 text-emerald-800 font-bold", isSpike: false, advice: "Healthy post-meal glycemic response." };
         } else if (val >= 140 && val <= 199) {
-          return { label: "Moderate (High Postprandial)", color: "bg-amber-100 text-amber-800 font-bold", advice: "Mild sugar spike. Engage in a 15-minute gentle walk." };
+          return { label: "Moderate (Elevated)", color: "bg-amber-100 text-amber-800 font-bold", isSpike: true, advice: "Post-meal spike. 15-min walk advised." };
         } else {
-          return { label: "Terror", color: "bg-rose-600 text-white font-black animate-pulse", advice: "Severe post-meal spike! High risk for lipid & vascular stress." };
+          return { label: "Terror", color: "bg-rose-600 text-white font-black animate-pulse", isSpike: true, advice: "Severe postprandial spike! Triggers triglyceride surge." };
         }
       }
     }
 
     /* ====================================================================
-       4. LOCALSTORAGE / FIRESTORE REPOSITORY HELPERS
+       5. DATABASE REPOSITORY HELPERS (FIRESTORE + LOCALSTORAGE)
     ==================================================================== */
     async function saveEntry(collectionName, entry) {
       if (isFirebaseActive && db) {
         try {
           await db.collection(collectionName).add(entry);
         } catch (e) {
-          console.error("Firebase write failed, saving locally:", e);
           saveLocal(collectionName, entry);
         }
       } else {
@@ -369,10 +449,9 @@
     async function getEntries(collectionName) {
       if (isFirebaseActive && db) {
         try {
-          const snap = await db.collection(collectionName).orderBy("rawDate", "desc").limit(40).get();
+          const snap = await db.collection(collectionName).orderBy("rawDate", "desc").limit(150).get();
           return snap.docs.map(doc => doc.data());
         } catch (e) {
-          console.warn("Firestore fetch error, falling back to local:", e);
           return JSON.parse(localStorage.getItem(collectionName) || "[]");
         }
       }
@@ -380,7 +459,7 @@
     }
 
     /* ====================================================================
-       5. TAB LOGIC & WORKFLOWS
+       6. TAB NAVIGATION
     ==================================================================== */
     function switchTab(tabId) {
       document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
@@ -395,11 +474,23 @@
       if (tabId === 'report') renderDailyReport();
     }
 
-    // --- TAB 1: SUGAR LOGIC ---
+    /* ====================================================================
+       7. TAB 1: SUGAR LOGIC WITH DAILY ONCE LOCK
+    ==================================================================== */
     document.getElementById("sugar-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const slot = document.getElementById("sugar-slot").value;
       const val = parseFloat(document.getElementById("sugar-value").value);
+      const today = getTodayKey();
+
+      // Duplicate Lock Check
+      const allSugars = await getEntries("sugar_logs");
+      const alreadyLocked = allSugars.some(s => s.dateKey === today && s.slot === slot);
+      if (alreadyLocked) {
+        alert(`🔒 "${slot}" is already recorded and locked for today!`);
+        return;
+      }
+
       const evalResult = evaluateIndianSugarStandard(val, slot);
 
       const entry = {
@@ -407,24 +498,77 @@
         value: val,
         status: evalResult.label,
         statusColor: evalResult.color,
+        isSpike: evalResult.isSpike,
         timestamp: getFormattedTimestamp(),
-        dateKey: getTodayKey(),
+        dateKey: today,
         rawDate: Date.now()
       };
 
       await saveEntry("sugar_logs", entry);
       document.getElementById("sugar-value").value = "";
-      loadSugarLogs();
+      fetchAllData();
     });
 
     async function loadSugarLogs() {
       const logs = await getEntries("sugar_logs");
       const tbody = document.getElementById("sugar-table-body");
       tbody.innerHTML = "";
+
+      const today = getTodayKey();
+      const todaySugars = logs.filter(s => s.dateKey === today);
+      const lockedSlotsMap = {};
+      todaySugars.forEach(s => { lockedSlotsMap[s.slot] = s; });
+
+      // Update Checkpoint Cards
+      const slotsGrid = document.getElementById("sugar-slots-grid");
+      slotsGrid.innerHTML = "";
+      let lockedCount = 0;
+
+      SUGAR_CHECKPOINTS.forEach((slot, index) => {
+        const isLocked = !!lockedSlotsMap[slot];
+        if (isLocked) lockedCount++;
+        const card = document.createElement("div");
+        card.className = `p-2.5 rounded-lg border text-center transition ${isLocked ? 'bg-indigo-50 border-indigo-300' : 'bg-slate-50 border-slate-200'}`;
+        card.innerHTML = `
+          <div class="text-[10px] font-bold text-slate-500 uppercase">${index + 1}. ${slot.split(' ')[0]}</div>
+          <div class="text-xs font-semibold ${isLocked ? 'text-indigo-900 font-bold' : 'text-slate-600'}">
+            ${isLocked ? `🔒 ${lockedSlotsMap[slot].value} mg/dL` : '🔓 Pending'}
+          </div>
+        `;
+        slotsGrid.appendChild(card);
+      });
+
+      document.getElementById("sugar-lock-count").innerText = `${lockedCount}/6 Locked Today`;
+
+      // Update Dropdown with Lock Status
+      const slotSelect = document.getElementById("sugar-slot");
+      slotSelect.innerHTML = "";
+      SUGAR_CHECKPOINTS.forEach((slot, idx) => {
+        const isLocked = !!lockedSlotsMap[slot];
+        const opt = document.createElement("option");
+        opt.value = slot;
+        opt.disabled = isLocked;
+        opt.innerText = isLocked ? `🔒 ${idx + 1}. ${slot} (Completed Today)` : `🔓 ${idx + 1}. ${slot}`;
+        slotSelect.appendChild(opt);
+      });
+
+      const submitBtn = document.getElementById("sugar-submit-btn");
+      if (lockedCount >= 6) {
+        submitBtn.disabled = true;
+        submitBtn.className = "w-full bg-slate-400 text-white font-medium py-2 rounded-lg text-sm cursor-not-allowed";
+        submitBtn.innerText = "🎉 All 6 Checkpoints Completed & Locked Today";
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg text-sm shadow";
+        submitBtn.innerText = "🔒 Record & Lock Slot";
+      }
+
+      // Populate Table
       if (logs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-xs text-slate-400">No sugar readings recorded yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-xs text-slate-400">No sugar readings recorded yet.</td></tr>`;
         return;
       }
+
       logs.forEach(item => {
         const tr = document.createElement("tr");
         tr.className = "hover:bg-slate-50";
@@ -433,29 +577,59 @@
           <td class="p-2.5 font-semibold text-slate-700">${item.slot}</td>
           <td class="p-2.5 font-bold">${item.value} mg/dL</td>
           <td class="p-2.5"><span class="px-2 py-0.5 rounded text-xs ${item.statusColor}">${item.status}</span></td>
+          <td class="p-2.5 text-xs text-slate-500 font-medium">${item.dateKey === today ? '🔒 Locked (Today)' : 'Archived'}</td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    // --- TAB 2: WATER LOGIC ---
-    async function logWater(ml) {
+    /* ====================================================================
+       8. TAB 2: WATER SCHEDULE WITH 2-HOUR LOCK
+    ==================================================================== */
+    async function lockWaterSlot(scheduleId) {
+      const slotDef = WATER_SCHEDULE.find(w => w.id === scheduleId);
+      if (!slotDef) return;
+
+      const today = getTodayKey();
+      const allWaters = await getEntries("water_logs");
+      const alreadyLocked = allWaters.some(w => w.dateKey === today && w.scheduleId === scheduleId);
+      if (alreadyLocked) {
+        alert(`🔒 The ${slotDef.slotName} (${slotDef.time}) slot has already been logged and locked for today!`);
+        return;
+      }
+
       const entry = {
-        amount: parseInt(ml),
+        scheduleId: slotDef.id,
+        slotName: slotDef.slotName,
+        scheduledTime: slotDef.time,
+        amount: slotDef.amount,
+        timestamp: getFormattedTimestamp(),
+        dateKey: today,
+        rawDate: Date.now()
+      };
+
+      await saveEntry("water_logs", entry);
+      fetchAllData();
+    }
+
+    async function logCustomWater() {
+      const input = document.getElementById("water-custom-amount");
+      const val = parseInt(input.value);
+      if (!val || val <= 0) return;
+
+      const entry = {
+        scheduleId: "CUSTOM",
+        slotName: "Extra Unscheduled Water",
+        scheduledTime: "--",
+        amount: val,
         timestamp: getFormattedTimestamp(),
         dateKey: getTodayKey(),
         rawDate: Date.now()
       };
-      await saveEntry("water_logs", entry);
-      loadWaterLogs();
-    }
 
-    function submitWaterInput() {
-      const input = document.getElementById("water-amount");
-      if (input.value && parseInt(input.value) > 0) {
-        logWater(parseInt(input.value));
-        input.value = "";
-      }
+      await saveEntry("water_logs", entry);
+      input.value = "";
+      fetchAllData();
     }
 
     async function loadWaterLogs() {
@@ -463,69 +637,85 @@
       const tbody = document.getElementById("water-table-body");
       tbody.innerHTML = "";
 
-      const todayKey = getTodayKey();
-      let todayTotal = 0;
+      const today = getTodayKey();
+      const todayWaters = logs.filter(w => w.dateKey === today);
+      const lockedWaterIds = new Set(todayWaters.map(w => w.scheduleId));
 
-      logs.forEach(item => {
-        if (item.dateKey === todayKey) todayTotal += item.amount;
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-50";
-        tr.innerHTML = `
-          <td class="p-2.5 font-mono text-xs text-slate-500">${item.timestamp}</td>
-          <td class="p-2.5 font-semibold text-blue-700">${item.amount} ml</td>
+      let todayTotal = todayWaters.reduce((acc, curr) => acc + curr.amount, 0);
+
+      // Render 2-hour schedule cards with locks
+      const grid = document.getElementById("water-schedule-grid");
+      grid.innerHTML = "";
+
+      WATER_SCHEDULE.forEach(slot => {
+        const isLocked = lockedWaterIds.has(slot.id);
+        const card = document.createElement("div");
+        card.className = `p-3.5 rounded-xl border flex flex-col justify-between transition ${isLocked ? 'bg-emerald-50 border-emerald-300' : 'bg-slate-50 border-slate-200'}`;
+        card.innerHTML = `
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-xs font-bold text-slate-800">${slot.time}</span>
+              <span class="text-xs font-black text-blue-700">${slot.amount} ml</span>
+            </div>
+            <div class="text-xs font-semibold text-slate-700 mb-1">${slot.slotName}</div>
+            <p class="text-[11px] text-slate-500 leading-snug mb-3">${slot.benefit}</p>
+          </div>
+          <div>
+            ${isLocked 
+              ? `<button disabled class="w-full py-1.5 rounded-lg bg-emerald-200 text-emerald-800 text-xs font-bold cursor-not-allowed">🔒 Locked (Completed)</button>`
+              : `<button onclick="lockWaterSlot('${slot.id}')" class="w-full py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow">💧 Drink & Lock</button>`
+            }
+          </div>
         `;
-        tbody.appendChild(tr);
+        grid.appendChild(card);
       });
 
-      if (logs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="2" class="p-3 text-center text-xs text-slate-400">No water logs added yet.</td></tr>`;
-      }
-
-      // Update Water Widget & "Needy" Suggestion
-      document.getElementById("water-today-total").innerText = todayTotal;
+      // Update progress
+      document.getElementById("water-today-total-badge").innerText = `${todayTotal} / 3000 ml`;
       const target = 3000;
       const percent = Math.min(100, Math.round((todayTotal / target) * 100));
       document.getElementById("water-progress-bar").style.width = percent + "%";
 
-      const needyTag = document.getElementById("water-needy-tag");
-      const suggText = document.getElementById("water-suggestion-text");
-
-      if (todayTotal < 1500) {
-        needyTag.className = "text-xs px-2 py-0.5 rounded-full bg-rose-200 text-rose-800 font-bold";
-        needyTag.innerText = "Critically Needy";
-        suggText.innerText = `⚠️ Highly dehydrated! You need at least ${target - todayTotal} ml more today. Dehydration thickens blood, raising glucose concentration.`;
-      } else if (todayTotal < 3000) {
-        needyTag.className = "text-xs px-2 py-0.5 rounded-full bg-amber-200 text-amber-800 font-bold";
-        needyTag.innerText = "Needy (Keep Drinking)";
-        suggText.innerText = `💧 Progressing well, but still needy for ${target - todayTotal} ml to meet optimal metabolic hydration.`;
+      // Table records
+      if (logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-xs text-slate-400">No water logs added yet.</td></tr>`;
       } else {
-        needyTag.className = "text-xs px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-800 font-bold";
-        needyTag.innerText = "Goal Achieved!";
-        suggText.innerText = "🎉 Excellent hydration level! Adequate water intake assists kidney sugar clearance.";
+        logs.forEach(w => {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50";
+          tr.innerHTML = `
+            <td class="p-2.5 font-mono text-xs text-slate-500">${w.timestamp}</td>
+            <td class="p-2.5 font-semibold text-slate-800">${w.slotName || 'Scheduled Slot'}</td>
+            <td class="p-2.5 font-bold text-blue-700">+${w.amount} ml</td>
+            <td class="p-2.5 text-xs">${w.dateKey === today ? '🔒 Locked Today' : 'Archived'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
       }
     }
 
-    // --- TAB 3: FOOD LOGIC ---
+    /* ====================================================================
+       9. TAB 3: FOOD LOGS WITH DAILY MEAL-TYPE LOCK
+    ==================================================================== */
     function generateFoodAdvice(foodDesc) {
       const f = foodDesc.toLowerCase();
       let suggestions = [];
 
-      // Refined Carbs & Sweets
       if (f.includes("sweet") || f.includes("sugar") || f.includes("halwa") || f.includes("laddu") || f.includes("cake") || f.includes("gulab")) {
-        suggestions.push("High simple sugar detected! High risk of immediate glucose surge and elevated triglycerides. Replace with fiber-dense berries or roasted makhana.");
+        suggestions.push("High simple sugars trigger high triglyceride formation in the liver.");
       }
       if (f.includes("maida") || f.includes("parotta") || f.includes("puri") || f.includes("bhature") || f.includes("fried") || f.includes("samosa")) {
-        suggestions.push("High saturated fat + refined flour will spike LDL and serum triglycerides while prolonging insulin resistance.");
+        suggestions.push("Deep-fried trans-fats raise LDL cholesterol and blunt insulin sensitivity.");
       }
       if (f.includes("rice") || f.includes("biryani") || f.includes("pulao")) {
-        suggestions.push("Pair white rice with twice the portion of green vegetables, salad, or dal to blunt the glycemic index.");
+        suggestions.push("White rice causes rapid spikes; balance with double portions of dal, curd, or sabzi.");
       }
       if (f.includes("salad") || f.includes("dal") || f.includes("sprouts") || f.includes("millet") || f.includes("oats") || f.includes("roti")) {
-        suggestions.push("Great high-fiber, low GI choice! Soluble fiber binds dietary cholesterol and stabilizes fasting blood sugar.");
+        suggestions.push("Excellent high-fiber choice: slows carb absorption and lowers cholesterol.");
       }
 
       if (suggestions.length === 0) {
-        suggestions.push("Balanced Indian plate tip: Ensure 50% plate is vegetables/greens, 25% protein (dal/paneer/fish/egg), and 25% complex carbs.");
+        suggestions.push("Follow the Indian Plate Method: 50% vegetables/greens, 25% protein (dal/paneer/eggs), 25% complex carbs.");
       }
       return suggestions.join(" ");
     }
@@ -534,6 +724,16 @@
       e.preventDefault();
       const mealType = document.getElementById("food-meal-type").value;
       const desc = document.getElementById("food-desc").value;
+      const today = getTodayKey();
+
+      // Meal Type Lock Check
+      const allFoods = await getEntries("food_logs");
+      const alreadyLocked = allFoods.some(f => f.dateKey === today && f.mealType === mealType);
+      if (alreadyLocked) {
+        alert(`🔒 "${mealType}" has already been logged and locked for today!`);
+        return;
+      }
+
       const suggestion = generateFoodAdvice(desc);
 
       const entry = {
@@ -541,17 +741,15 @@
         description: desc,
         suggestion: suggestion,
         timestamp: getFormattedTimestamp(),
-        dateKey: getTodayKey(),
+        dateKey: today,
         rawDate: Date.now()
       };
 
       await saveEntry("food_logs", entry);
       document.getElementById("food-desc").value = "";
-      
       document.getElementById("latest-food-suggestion").classList.remove("hidden");
       document.getElementById("food-suggestion-text").innerText = suggestion;
-
-      loadFoodLogs();
+      fetchAllData();
     });
 
     async function loadFoodLogs() {
@@ -559,6 +757,56 @@
       const tbody = document.getElementById("food-table-body");
       tbody.innerHTML = "";
 
+      const today = getTodayKey();
+      const todayFoods = logs.filter(f => f.dateKey === today);
+      const lockedMealsMap = {};
+      todayFoods.forEach(f => { lockedMealsMap[f.mealType] = f; });
+
+      // Visual Meal Slots Indicator
+      const mealGrid = document.getElementById("meal-slots-grid");
+      mealGrid.innerHTML = "";
+      let lockedCount = 0;
+
+      MEAL_TYPES.forEach(meal => {
+        const isLocked = !!lockedMealsMap[meal];
+        if (isLocked) lockedCount++;
+        const card = document.createElement("div");
+        card.className = `p-2 rounded-lg border text-center transition ${isLocked ? 'bg-emerald-50 border-emerald-300' : 'bg-slate-50 border-slate-200'}`;
+        card.innerHTML = `
+          <div class="text-[10px] font-bold text-slate-500 uppercase">${meal}</div>
+          <div class="text-xs font-semibold ${isLocked ? 'text-emerald-900 font-bold' : 'text-slate-600'}">
+            ${isLocked ? '🔒 Logged' : '🔓 Pending'}
+          </div>
+        `;
+        mealGrid.appendChild(card);
+      });
+
+      document.getElementById("food-lock-count").innerText = `${lockedCount}/5 Meals Logged Today`;
+
+      // Update Dropdown with Lock Status
+      const mealSelect = document.getElementById("food-meal-type");
+      mealSelect.innerHTML = "";
+      MEAL_TYPES.forEach(meal => {
+        const isLocked = !!lockedMealsMap[meal];
+        const opt = document.createElement("option");
+        opt.value = meal;
+        opt.disabled = isLocked;
+        opt.innerText = isLocked ? `🔒 ${meal} (Completed Today)` : `🔓 ${meal}`;
+        mealSelect.appendChild(opt);
+      });
+
+      const submitBtn = document.getElementById("food-submit-btn");
+      if (lockedCount >= 5) {
+        submitBtn.disabled = true;
+        submitBtn.className = "bg-slate-400 text-white font-medium py-2 px-6 rounded-lg text-sm cursor-not-allowed";
+        submitBtn.innerText = "🎉 All Meals Logged & Locked Today";
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.className = "bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded-lg text-sm shadow";
+        submitBtn.innerText = "🔒 Save & Lock Meal";
+      }
+
+      // Populate Table
       if (logs.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-xs text-slate-400">No meal records logged yet.</td></tr>`;
         return;
@@ -577,81 +825,255 @@
       });
     }
 
-    // --- TAB 4: DAILY COMPREHENSIVE REPORT ---
-    async function renderDailyReport() {
-      const today = getTodayKey();
-      const sugars = (await getEntries("sugar_logs")).filter(i => i.dateKey === today);
-      const waters = (await getEntries("water_logs")).filter(i => i.dateKey === today);
-      const foods = (await getEntries("food_logs")).filter(i => i.dateKey === today);
-
-      // Average Sugar
-      const avgSugarEl = document.getElementById("rep-avg-sugar");
-      const sugarStatusEl = document.getElementById("rep-sugar-status");
-      let avgSugar = 0;
-
-      if (sugars.length > 0) {
-        avgSugar = Math.round(sugars.reduce((acc, curr) => acc + curr.value, 0) / sugars.length);
-        avgSugarEl.innerText = `${avgSugar} mg/dL`;
-        if (avgSugar <= 120) {
-          sugarStatusEl.innerText = "Good Glycemic Control";
-          sugarStatusEl.className = "text-xs mt-1 font-bold text-emerald-600";
-        } else if (avgSugar <= 160) {
-          sugarStatusEl.innerText = "Moderate Fluctuations";
-          sugarStatusEl.className = "text-xs mt-1 font-bold text-amber-600";
-        } else {
-          sugarStatusEl.innerText = "Terror Alert: Severely High";
-          sugarStatusEl.className = "text-xs mt-1 font-bold text-rose-600 animate-pulse";
-        }
-      } else {
-        avgSugarEl.innerText = "-- mg/dL";
-        sugarStatusEl.innerText = "No readings logged today";
-      }
-
-      // Water Total
-      const waterTotal = waters.reduce((acc, curr) => acc + curr.amount, 0);
-      document.getElementById("rep-water").innerText = `${waterTotal} ml`;
-      const waterRepStatus = document.getElementById("rep-water-status");
-      if (waterTotal >= 3000) {
-        waterRepStatus.innerText = "Well Hydrated";
-        waterRepStatus.className = "text-xs mt-1 text-emerald-600 font-semibold";
-      } else {
-        waterRepStatus.innerText = `Needy: ${3000 - waterTotal} ml deficit`;
-        waterRepStatus.className = "text-xs mt-1 text-rose-600 font-semibold";
-      }
-
-      // Meal Count
-      document.getElementById("rep-meal-count").innerText = foods.length;
-
-      // Consolidated Health / Triglyceride Suggestions
-      const aiContainer = document.getElementById("ai-daily-recommendations");
-      let tips = [];
-
-      // Sugar & Triglyceride cross-analysis
-      if (avgSugar > 150) {
-        tips.push("• <strong>High Blood Glucose Spike:</strong> High circulating glucose directly triggers the liver to synthesize excess VLDL and <em>triglycerides</em>. Reduce evening high-glycemic starches (white rice, potatoes).");
-      } else if (sugars.length > 0) {
-        tips.push("• <strong>Stable Glucose Profile:</strong> Your blood sugar average is currently within safer thresholds, keeping triglyceride production steady.");
-      }
-
-      // Check Checkpoint Compliance (6 daily tests)
-      if (sugars.length < 6) {
-        tips.push(`• <strong>Test Coverage:</strong> You completed ${sugars.length}/6 sugar checkpoints today. Tracking before & after every meal (Morning, Noon, Night) prevents silent postprandial spikes.`);
-      } else {
-        tips.push("• <strong>Superb Monitoring:</strong> All 6 checkpoint tests completed! This provides actionable insight into your glycemic variability.");
-      }
-
-      // Water impact
-      if (waterTotal < 2500) {
-        tips.push("• <strong>Hydration Notice:</strong> You are in a hydration deficit. Insufficient water hampers the kidney's osmotic excretion of excess glucose.");
-      }
-
-      // Triglyceride & Cholesterol special guidelines
-      tips.push("• <strong>Triglycerides & Cholesterol Care:</strong> Limit cooking with reheated palm or vanaspati oils. Favor mustard, olive, or cold-pressed sesame oil. Include 20-30g of raw fenugreek (methi) or flaxseeds in your diet to naturally lower LDL.");
-
-      aiContainer.innerHTML = tips.map(t => `<p class="border-b border-indigo-100/50 pb-1">${t}</p>`).join("");
+    /* ====================================================================
+       10. TAB 4: DAILY REPORTS & DATEWISE COLLAPSIBLE ARCHIVE
+    ==================================================================== */
+    function matchMealToSlot(slotName, dayFoods) {
+      const s = slotName.toLowerCase();
+      if (s.includes("morning")) return dayFoods.find(f => f.mealType.toLowerCase().includes("breakfast")) || null;
+      if (s.includes("noon")) return dayFoods.find(f => f.mealType.toLowerCase().includes("lunch")) || null;
+      if (s.includes("evening") || s.includes("night")) return dayFoods.find(f => f.mealType.toLowerCase().includes("dinner")) || null;
+      return null;
     }
 
-    // Load initial data
+    async function renderDailyReport() {
+      const today = getTodayKey();
+      document.getElementById("rep-today-date").innerText = today;
+
+      const allSugars = await getEntries("sugar_logs");
+      const allWaters = await getEntries("water_logs");
+      const allFoods = await getEntries("food_logs");
+
+      const sugarsToday = allSugars.filter(i => i.dateKey === today);
+      const watersToday = allWaters.filter(i => i.dateKey === today);
+      const foodsToday = allFoods.filter(i => i.dateKey === today);
+
+      // Sugar Lock status
+      document.getElementById("rep-sugar-lock-stat").innerText = `${sugarsToday.length}/6 Locked`;
+      const avgSugarEl = document.getElementById("rep-avg-sugar");
+      if (sugarsToday.length > 0) {
+        const avg = Math.round(sugarsToday.reduce((acc, curr) => acc + curr.value, 0) / sugarsToday.length);
+        avgSugarEl.innerText = `Avg: ${avg} mg/dL`;
+      } else {
+        avgSugarEl.innerText = `Avg: -- mg/dL`;
+      }
+
+      // Water Lock status
+      const lockedWaterCount = new Set(watersToday.map(w => w.scheduleId).filter(id => id !== "CUSTOM")).size;
+      document.getElementById("rep-water-lock-stat").innerText = `${lockedWaterCount}/7 Slots`;
+      const waterTotal = watersToday.reduce((acc, curr) => acc + curr.amount, 0);
+      document.getElementById("rep-water").innerText = `${waterTotal} / 3000 ml`;
+
+      // Meal Lock status
+      document.getElementById("rep-meal-lock-stat").innerText = `${foodsToday.length}/5 Locked`;
+
+      // Today's Spikes live banner
+      const spikesLiveBox = document.getElementById("today-spikes-live-container");
+      spikesLiveBox.innerHTML = "";
+
+      const todaySpikes = sugarsToday.filter(s => {
+        const isPre = s.slot.toLowerCase().includes("before");
+        return isPre ? (s.value >= 100) : (s.value >= 140);
+      });
+
+      if (sugarsToday.length === 0) {
+        spikesLiveBox.innerHTML = `<p class="text-slate-500">No sugar readings recorded today to evaluate spikes.</p>`;
+      } else if (todaySpikes.length === 0) {
+        spikesLiveBox.innerHTML = `<p class="text-emerald-700 font-bold">✅ Excellent glycemic control! Zero sugar spikes detected today.</p>`;
+      } else {
+        todaySpikes.forEach(spk => {
+          const matchedMeal = matchMealToSlot(spk.slot, foodsToday);
+          const mealDesc = matchedMeal ? `Preceding meal (${matchedMeal.mealType}): "${matchedMeal.description}"` : 'No meal recorded for this checkpoint yet.';
+          const item = document.createElement("div");
+          item.className = "p-2 bg-white rounded border border-rose-200 text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1";
+          item.innerHTML = `
+            <div>
+              <span class="font-bold text-rose-800">⚠️ Spike at ${spk.slot} (${spk.timestamp}):</span>
+              <span class="text-slate-600 ml-1">${mealDesc}</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold ${spk.statusColor}">${spk.value} mg/dL (${spk.status})</span>
+          `;
+          spikesLiveBox.appendChild(item);
+        });
+      }
+
+      // Render Datewise Collapsible Records
+      renderDatewiseCollapsibleReports(allSugars, allWaters, allFoods);
+    }
+
+    function renderDatewiseCollapsibleReports(allSugars, allWaters, allFoods) {
+      const container = document.getElementById("datewise-collapsible-container");
+      container.innerHTML = "";
+
+      const today = getTodayKey();
+
+      let uniqueDates = Array.from(new Set([
+        today,
+        ...allSugars.map(s => s.dateKey),
+        ...allWaters.map(w => w.dateKey),
+        ...allFoods.map(f => f.dateKey)
+      ])).filter(Boolean);
+
+      uniqueDates.sort((a, b) => {
+        const [d1, m1, y1] = a.split("/").map(Number);
+        const [d2, m2, y2] = b.split("/").map(Number);
+        return new Date(y2, m2 - 1, d2) - new Date(y1, m1 - 1, d1);
+      });
+
+      uniqueDates.forEach((dateStr) => {
+        const daySugars = allSugars.filter(s => s.dateKey === dateStr);
+        const dayWaters = allWaters.filter(w => w.dateKey === dateStr);
+        const dayFoods = allFoods.filter(f => f.dateKey === dateStr);
+        const isToday = (dateStr === today);
+
+        let avgSugar = 0;
+        let sugarBadge = `<span class="px-2 py-0.5 rounded text-xs bg-slate-200 text-slate-600 font-semibold">No Sugar Data</span>`;
+        if (daySugars.length > 0) {
+          avgSugar = Math.round(daySugars.reduce((acc, curr) => acc + curr.value, 0) / daySugars.length);
+          if (avgSugar <= 120) {
+            sugarBadge = `<span class="px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800 font-bold">Avg ${avgSugar} mg/dL (Good)</span>`;
+          } else if (avgSugar <= 160) {
+            sugarBadge = `<span class="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800 font-bold">Avg ${avgSugar} mg/dL (Moderate)</span>`;
+          } else {
+            sugarBadge = `<span class="px-2 py-0.5 rounded text-xs bg-rose-600 text-white font-bold animate-pulse">Avg ${avgSugar} mg/dL (Terror)</span>`;
+          }
+        }
+
+        const waterTotal = dayWaters.reduce((acc, curr) => acc + curr.amount, 0);
+        const waterBadge = waterTotal >= 3000
+          ? `<span class="px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800 font-bold">💧 ${waterTotal} ml (Met)</span>`
+          : `<span class="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800 font-bold">💧 ${waterTotal} ml (Needy)</span>`;
+
+        const daySpikes = daySugars.filter(item => {
+          const isPre = item.slot.toLowerCase().includes("before");
+          return isPre ? (item.value >= 100) : (item.value >= 140);
+        });
+
+        const spikeIndicator = daySugars.length === 0
+          ? `<span class="text-xs text-slate-400">No logs</span>`
+          : (daySpikes.length === 0 
+              ? `<span class="px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800 font-semibold">✅ 0 Spikes</span>`
+              : `<span class="px-2 py-0.5 rounded text-xs bg-rose-100 text-rose-800 font-black">🚨 ${daySpikes.length} Spike(s)</span>`);
+
+        // Details breakdown
+        let spikesHtml = daySpikes.length === 0 
+          ? `<div class="p-2 bg-emerald-50 text-emerald-900 border border-emerald-200 rounded text-xs font-semibold">No sugar spikes on ${dateStr}.</div>`
+          : daySpikes.map(spk => {
+              const matchedMeal = matchMealToSlot(spk.slot, dayFoods);
+              return `
+                <div class="p-2 bg-rose-50 border border-rose-200 rounded text-xs space-y-1">
+                  <div class="flex justify-between font-bold">
+                    <span>⚠️ Spike at ${spk.slot} (${spk.timestamp})</span>
+                    <span class="px-1.5 py-0.5 rounded text-white bg-rose-600">${spk.value} mg/dL</span>
+                  </div>
+                  <div class="text-slate-600">${matchedMeal ? `Preceding meal: "${matchedMeal.description}"` : 'No meal recorded'}</div>
+                </div>
+              `;
+            }).join("");
+
+        let sugarListHtml = daySugars.length === 0 ? `<p class="text-slate-400 italic text-xs">No records</p>` : daySugars.map(s => `
+          <div class="p-2 bg-white rounded border border-slate-200 flex justify-between items-center text-xs">
+            <div>
+              <div class="font-semibold text-slate-800">${s.slot}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${s.timestamp}</div>
+            </div>
+            <div class="text-right">
+              <span class="font-bold">${s.value} mg/dL</span>
+              <div><span class="px-1.5 py-0.2 rounded text-[10px] ${s.statusColor}">${s.status}</span></div>
+            </div>
+          </div>
+        `).join("");
+
+        let waterListHtml = dayWaters.length === 0 ? `<p class="text-slate-400 italic text-xs">No records</p>` : dayWaters.map(w => `
+          <div class="p-2 bg-white rounded border border-slate-200 flex justify-between items-center text-xs">
+            <div>
+              <div class="font-semibold text-slate-800">${w.slotName || 'Scheduled Water'}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${w.timestamp}</div>
+            </div>
+            <span class="font-bold text-blue-700">+${w.amount} ml</span>
+          </div>
+        `).join("");
+
+        let foodListHtml = dayFoods.length === 0 ? `<p class="text-slate-400 italic text-xs">No records</p>` : dayFoods.map(f => `
+          <div class="p-2 bg-white rounded border border-slate-200 text-xs">
+            <div class="flex justify-between font-bold">
+              <span>${f.mealType}</span>
+              <span class="text-[10px] font-mono text-slate-400">${f.timestamp}</span>
+            </div>
+            <div class="text-slate-700">${f.description}</div>
+            <div class="text-indigo-700 text-[11px] italic mt-1">${f.suggestion}</div>
+          </div>
+        `).join("");
+
+        // Collapsible Accordion (DEFAULT COLLAPSED - no 'open' attribute)
+        const detailsEl = document.createElement("details");
+        detailsEl.className = "date-accordion group bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm transition-all";
+
+        detailsEl.innerHTML = `
+          <!-- DATEWISE COLLAPSIBLE HEADER (CLICKABLE) -->
+          <summary class="flex flex-col sm:flex-row sm:items-center justify-between p-4 cursor-pointer select-none bg-slate-50 hover:bg-slate-100 transition border-b border-transparent group-open:border-slate-200 gap-3">
+            <div class="flex items-center gap-2.5">
+              <span class="accordion-chevron text-slate-400 transition-transform duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </span>
+              <div>
+                <span class="font-mono font-bold text-sm text-slate-800">${dateStr}</span>
+                ${isToday ? `<span class="ml-2 px-2 py-0.5 bg-indigo-600 text-white text-[10px] font-black rounded-full uppercase">Today</span>` : ''}
+              </div>
+            </div>
+
+            <!-- Header Quick Badges -->
+            <div class="flex flex-wrap items-center gap-2">
+              ${sugarBadge}
+              ${waterBadge}
+              <span class="px-2 py-0.5 rounded text-xs bg-slate-200 text-slate-700 font-semibold">🔒 ${daySugars.length}/6 Sugar</span>
+              <span class="px-2 py-0.5 rounded text-xs bg-slate-200 text-slate-700 font-semibold">🥗 ${dayFoods.length}/5 Meals</span>
+              ${spikeIndicator}
+            </div>
+          </summary>
+
+          <!-- COLLAPSIBLE BODY (EXPANDABLE DETAILS) -->
+          <div class="p-5 space-y-4 bg-white">
+            
+            <!-- Spike Times Analysis -->
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-rose-900 mb-2">
+                🚨 Sugar Spike Analysis for ${dateStr}
+              </h4>
+              <div class="space-y-1.5">
+                ${spikesHtml}
+              </div>
+            </div>
+
+            <!-- 3-Way Grid Breakdown -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-2">
+              <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="text-xs font-bold text-slate-700 uppercase mb-2">🩸 Blood Sugar Checkpoints (${daySugars.length}/6)</div>
+                <div class="space-y-1.5 max-h-56 overflow-y-auto">${sugarListHtml}</div>
+              </div>
+              <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="text-xs font-bold text-slate-700 uppercase mb-2">💧 Water Consumption (${waterTotal} ml)</div>
+                <div class="space-y-1.5 max-h-56 overflow-y-auto">${waterListHtml}</div>
+              </div>
+              <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="text-xs font-bold text-slate-700 uppercase mb-2">🥗 Meals Logged (${dayFoods.length}/5)</div>
+                <div class="space-y-1.5 max-h-56 overflow-y-auto">${foodListHtml}</div>
+              </div>
+            </div>
+
+          </div>
+        `;
+
+        container.appendChild(detailsEl);
+      });
+    }
+
+    function toggleAllAccordions(shouldOpen) {
+      document.querySelectorAll(".date-accordion").forEach(el => {
+        el.open = shouldOpen;
+      });
+    }
+
     function fetchAllData() {
       loadSugarLogs();
       loadWaterLogs();
@@ -659,10 +1081,10 @@
       renderDailyReport();
     }
 
-    // Bootstrap
     window.addEventListener("DOMContentLoaded", () => {
       initFirebase();
     });
   </script>
 </body>
 </html>
+
