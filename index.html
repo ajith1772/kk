@@ -1,10 +1,16 @@
+Here is the updated single-file code.
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>GlycoFit Mobile - Light Edition</title>
+  <title>GlycoFit Mobile - All Checkpoints Trend</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <style>
@@ -34,7 +40,7 @@
       <!-- Connection Status Pill -->
       <div id="conn-pill" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-300">
         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-        <span id="conn-text">Off</span>
+        <span id="conn-text">Syncing</span>
       </div>
     </header>
 
@@ -179,7 +185,7 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 4: INSIGHTS & DAILY SPIKES ==================== -->
+      <!-- ==================== TAB 4: INSIGHTS & ALL CHECKPOINTS GRAPH ==================== -->
       <section id="tab-report" class="tab-view hidden space-y-3">
         
         <!-- Live Stat Cards -->
@@ -208,6 +214,42 @@
             <span>Today's Sugar Spikes & Time</span>
           </div>
           <div id="today-spikes-list" class="space-y-1 text-[11px] text-rose-900 font-medium"></div>
+        </div>
+
+        <!-- ===============================================================
+             GLYCEMIC TREND GRAPH: ALL CHECKPOINTS IN ALL DAYS (SWIPEABLE)
+        ================================================================ -->
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-1">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs">📈</span>
+              <span class="text-xs font-black uppercase tracking-wider text-slate-800">All Checkpoints Trend</span>
+            </div>
+            <!-- Two-colored line legend -->
+            <div class="flex items-center gap-2 text-[9px] font-bold">
+              <span class="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Before Food
+              </span>
+              <span class="flex items-center gap-1 text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
+                <span class="w-2 h-2 rounded-full bg-rose-500"></span> After Food
+              </span>
+            </div>
+          </div>
+
+          <!-- Horizontal Scrollable Container for All Checkpoints -->
+          <div class="overflow-x-auto no-scrollbar w-full border border-slate-100 rounded-xl bg-slate-50/40 p-1">
+            <div id="chart-scroll-wrapper" class="relative h-48 w-full min-w-[320px]">
+              <canvas id="sugarTrendChart"></canvas>
+              <div id="chart-empty-msg" class="hidden absolute inset-0 flex items-center justify-center text-xs text-slate-400 font-medium">
+                Log sugar checkpoints to render graph.
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center text-[9px] text-slate-500 border-t border-slate-100 pt-1.5 font-medium">
+            <span>● Indian Limits: &lt;100 Pre / &lt;140 Post</span>
+            <span id="chart-points-count" class="font-mono text-slate-400">0 Checkpoints</span>
+          </div>
         </div>
 
         <!-- DATEWISE ARCHIVE SHOWING SPIKES FOR EACH DAY -->
@@ -259,6 +301,7 @@
 
     let db = null;
     let isFirebaseActive = false;
+    let sugarChartInstance = null;
 
     function initFirebase() {
       const isConfigured = firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("YOUR_API_KEY");
@@ -269,7 +312,7 @@
           db.collection("_ping").limit(1).get().then(() => {
             isFirebaseActive = true;
             document.getElementById("conn-pill").className = "flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-300";
-            document.getElementById("conn-pill").innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>On</span>`;
+            document.getElementById("conn-pill").innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>Cloud</span>`;
             fetchAllData();
           }).catch(() => setLocalMode());
         } catch(e) { setLocalMode(); }
@@ -326,13 +369,12 @@
       let hours = d.getHours();
       const ampm = hours >= 12 ? 'PM' : 'AM';
       hours = hours % 12;
-      hours = hours ? hours : 12; // 12-hour format
+      hours = hours ? hours : 12;
 
       const hh = p(hours);
       const min = p(d.getMinutes());
       const ss = p(d.getSeconds());
 
-      // STRICTLY ss:mm:hh AM/PM ORDER REQUESTED
       return `${dd}/${mm}/${yyyy} ${ss}:${min}:${hh} ${ampm}`;
     }
 
@@ -357,7 +399,7 @@
     }
 
     /* ====================================================================
-       4. DATABASE ENGINE
+       4. DATABASE ENGINE (FIRESTORE + LOCALSTORAGE)
     ==================================================================== */
     async function saveItem(col, item) {
       if (isFirebaseActive && db) {
@@ -375,7 +417,7 @@
     async function loadItems(col) {
       if (isFirebaseActive && db) {
         try {
-          const snap = await db.collection(col).orderBy("rawDate", "desc").limit(100).get();
+          const snap = await db.collection(col).orderBy("rawDate", "desc").limit(200).get();
           return snap.docs.map(d => d.data());
         } catch(e) { return JSON.parse(localStorage.getItem(col) || "[]"); }
       }
@@ -474,7 +516,6 @@
 
       document.getElementById("sugar-lock-pill").innerText = `${count}/6 Done`;
 
-      // Previous Sugar Feed
       const feed = document.getElementById("sugar-feed");
       feed.innerHTML = logs.length === 0 ? `<p class="text-[11px] text-slate-400">No records logged yet.</p>` : "";
       logs.slice(0, 15).forEach(l => {
@@ -541,7 +582,6 @@
         chip.innerText = `Needy (${3000 - total}ml)`;
       }
 
-      // Today's Protocol Slots
       const list = document.getElementById("water-slots-list");
       list.innerHTML = "";
       let lockedCount = 0;
@@ -572,7 +612,6 @@
 
       document.getElementById("water-lock-count").innerText = `${lockedCount}/7 Logged`;
 
-      // ALL PREVIOUS WATER LOGS FEED
       const allFeed = document.getElementById("water-all-feed");
       allFeed.innerHTML = logs.length === 0 ? `<p class="text-[11px] text-slate-400">No previous water records.</p>` : "";
       logs.forEach(w => {
@@ -674,7 +713,6 @@
 
       document.getElementById("food-lock-pill").innerText = `${count}/5 Done`;
 
-      // ALL PREVIOUS MEALS FEED WITH DATES
       const allFeed = document.getElementById("food-all-feed");
       allFeed.innerHTML = logs.length === 0 ? `<p class="text-[11px] text-slate-400">No previous meal records.</p>` : "";
       logs.forEach(f => {
@@ -693,7 +731,194 @@
     }
 
     /* ====================================================================
-       9. INSIGHTS TAB (DAILY SUGAR SPIKES FOR EACH DAY)
+       9. TWO-COLORED GRAPH: ALL CHECKPOINTS IN ALL DAYS (SWIPEABLE)
+    ==================================================================== */
+    function renderSugarTrendChart(sugars) {
+      const canvas = document.getElementById("sugarTrendChart");
+      const emptyMsg = document.getElementById("chart-empty-msg");
+      const scrollWrapper = document.getElementById("chart-scroll-wrapper");
+      if (!canvas) return;
+
+      if (!sugars || sugars.length === 0) {
+        if (sugarChartInstance) {
+          sugarChartInstance.destroy();
+          sugarChartInstance = null;
+        }
+        emptyMsg.classList.remove("hidden");
+        document.getElementById("chart-points-count").innerText = "0 Checkpoints";
+        return;
+      }
+
+      emptyMsg.classList.add("hidden");
+
+      // Sort unique dates chronologically (oldest to newest)
+      const uniqueDates = Array.from(new Set(sugars.map(s => s.dateKey))).filter(Boolean);
+      uniqueDates.sort((a, b) => {
+        const [d1, m1, y1] = a.split('/').map(Number);
+        const [d2, m2, y2] = b.split('/').map(Number);
+        return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
+      });
+
+      // Assemble all 3 paired checkpoints (Morning, Noon, Evening) for every single day
+      const labels = [];
+      const beforeFoodData = [];
+      const afterFoodData = [];
+      const metaInfo = []; // stores details for tooltips
+
+      let totalPointsCount = 0;
+
+      uniqueDates.forEach(dateStr => {
+        const daySugars = sugars.filter(s => s.dateKey === dateStr);
+        const shortDate = dateStr.slice(0, 5); // DD/MM
+
+        // 1. Morning Checkpoint Pair
+        const mornPre = daySugars.find(s => s.slot === "Morning Before Food");
+        const mornPost = daySugars.find(s => s.slot === "Morning After Food");
+        if (mornPre || mornPost) {
+          labels.push(`${shortDate} 🌅`);
+          beforeFoodData.push(mornPre ? mornPre.value : null);
+          afterFoodData.push(mornPost ? mornPost.value : null);
+          metaInfo.push({ date: dateStr, interval: "Morning (Breakfast)", pre: mornPre, post: mornPost });
+          totalPointsCount += (mornPre ? 1 : 0) + (mornPost ? 1 : 0);
+        }
+
+        // 2. Noon Checkpoint Pair
+        const noonPre = daySugars.find(s => s.slot === "Noon Before Food");
+        const noonPost = daySugars.find(s => s.slot === "Noon After Food");
+        if (noonPre || noonPost) {
+          labels.push(`${shortDate} ☀️`);
+          beforeFoodData.push(noonPre ? noonPre.value : null);
+          afterFoodData.push(noonPost ? noonPost.value : null);
+          metaInfo.push({ date: dateStr, interval: "Noon (Lunch)", pre: noonPre, post: noonPost });
+          totalPointsCount += (noonPre ? 1 : 0) + (noonPost ? 1 : 0);
+        }
+
+        // 3. Evening Checkpoint Pair
+        const evePre = daySugars.find(s => s.slot === "Evening/Night Before Food");
+        const evePost = daySugars.find(s => s.slot === "Evening/Night After Food");
+        if (evePre || evePost) {
+          labels.push(`${shortDate} 🌙`);
+          beforeFoodData.push(evePre ? evePre.value : null);
+          afterFoodData.push(evePost ? evePost.value : null);
+          metaInfo.push({ date: dateStr, interval: "Evening (Dinner)", pre: evePre, post: evePost });
+          totalPointsCount += (evePre ? 1 : 0) + (evePost ? 1 : 0);
+        }
+      });
+
+      document.getElementById("chart-points-count").innerText = `${totalPointsCount} Total Checkpoints`;
+
+      // Dynamically expand canvas width if many checkpoints exist so points remain swipeable & uncluttered
+      const minCalculatedWidth = Math.max(340, labels.length * 45);
+      scrollWrapper.style.minWidth = minCalculatedWidth + "px";
+
+      if (sugarChartInstance) {
+        sugarChartInstance.destroy();
+      }
+
+      const ctx = canvas.getContext("2d");
+
+      sugarChartInstance = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Before Food",
+              data: beforeFoodData,
+              borderColor: "#10b981", // Emerald
+              backgroundColor: "rgba(16, 185, 129, 0.08)",
+              borderWidth: 2.2,
+              tension: 0.25,
+              pointBackgroundColor: "#10b981",
+              pointBorderColor: "#ffffff",
+              pointBorderWidth: 1.5,
+              pointRadius: 4.5,
+              pointHoverRadius: 6.5,
+              spanGaps: true
+            },
+            {
+              label: "After Food",
+              data: afterFoodData,
+              borderColor: "#f43f5e", // Rose
+              backgroundColor: "rgba(244, 63, 94, 0.08)",
+              borderWidth: 2.2,
+              tension: 0.25,
+              pointBackgroundColor: "#f43f5e",
+              pointBorderColor: "#ffffff",
+              pointBorderWidth: 1.5,
+              pointRadius: 4.5,
+              pointHoverRadius: 6.5,
+              spanGaps: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: "index",
+            intersect: false
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "#0f172a",
+              titleColor: "#f8fafc",
+              bodyColor: "#f8fafc",
+              titleFont: { size: 10, weight: "bold" },
+              bodyFont: { size: 11 },
+              padding: 8,
+              cornerRadius: 10,
+              callbacks: {
+                title: function(items) {
+                  const idx = items[0].dataIndex;
+                  const m = metaInfo[idx];
+                  return `${m.date} - ${m.interval}`;
+                },
+                label: function(context) {
+                  const val = context.parsed.y;
+                  if (val === null || val === undefined) return null;
+                  const isPre = context.datasetIndex === 0;
+                  const limit = isPre ? "<100" : "<140";
+                  return ` ${context.dataset.label}: ${val} mg/dL (Limit: ${limit})`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                color: "#64748b",
+                font: { size: 9, weight: "bold" }
+              }
+            },
+            y: {
+              min: 40,
+              suggestedMax: 220,
+              grid: {
+                color: "rgba(226, 232, 240, 0.7)",
+                drawBorder: false
+              },
+              ticks: {
+                color: "#64748b",
+                font: { size: 9 },
+                stepSize: 40
+              }
+            }
+          }
+        }
+      });
+
+      // Auto-scroll the chart to the latest data point on the right
+      const container = scrollWrapper.parentElement;
+      if (container) {
+        container.scrollLeft = container.scrollWidth;
+      }
+    }
+
+    /* ====================================================================
+       10. INSIGHTS TAB (STATS, ALL CHECKPOINTS GRAPH & DAILY SPIKES)
     ==================================================================== */
     async function renderReport() {
       const today = getTodayKey();
@@ -704,7 +929,7 @@
       const todaySugars = sugars.filter(s => s.dateKey === today);
       const todayWaters = waters.filter(w => w.dateKey === today);
 
-      // Top Tiles
+      // Top Stat Tiles
       if (todaySugars.length > 0) {
         const avg = Math.round(todaySugars.reduce((a, c) => a + c.value, 0) / todaySugars.length);
         document.getElementById("rep-avg").innerText = `${avg}`;
@@ -743,6 +968,9 @@
         spikeCard.classList.add("hidden");
       }
 
+      // RENDER ALL CHECKPOINTS ACROSS ALL DAYS ON GRAPH
+      renderSugarTrendChart(sugars);
+
       // Datewise Archive (SHOWING WHEN SUGAR SPIKED EACH DAY)
       const archive = document.getElementById("date-archive-list");
       archive.innerHTML = "";
@@ -773,7 +1001,6 @@
         const details = document.createElement("details");
         details.className = "group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs transition";
 
-        // Details content
         details.innerHTML = `
           <!-- Header (DEFAULT COLLAPSED) -->
           <summary class="p-3 cursor-pointer select-none flex items-center justify-between bg-slate-50 hover:bg-slate-100 transition">
