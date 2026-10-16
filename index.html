@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>GlycoFit Mobile - All Checkpoints Trend</title>
+  <title>GlycoFit Mobile - IST Edition</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -24,15 +24,21 @@
   <!-- Mobile Phone Frame Container (Max 440px) -->
   <div class="w-full max-w-md bg-white min-h-screen flex flex-col justify-between relative shadow-xl pb-24 border-x border-slate-200">
 
-    <!-- Top App Bar -->
-    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-slate-200 shadow-sm">
+    <!-- Top App Bar with Live Indian Standard Time (IST) -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md px-4 py-2.5 flex items-center justify-between border-b border-slate-200 shadow-sm">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-indigo-600 flex items-center justify-center font-black text-sm text-white shadow-sm">
           🩸
         </div>
         <div>
-          <h1 class="text-sm font-black tracking-tight leading-none text-slate-900">GlycoFit</h1>
-          <span id="current-date-badge" class="text-[10px] font-mono text-slate-500 font-semibold">--/--/----</span>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-sm font-black tracking-tight leading-none text-slate-900">GlycoFit</h1>
+            <span class="text-[9px] font-bold px-1.5 py-0.2 bg-orange-100 text-orange-800 rounded border border-orange-200">IST</span>
+          </div>
+          <!-- Live Real-Time Clock in IST (DD/MM/YYYY • HH:MM:SS AM/PM) -->
+          <div id="live-ist-clock" class="text-[10px] font-mono text-slate-600 font-semibold mt-0.5">
+            --/--/---- • --:--:-- --
+          </div>
         </div>
       </div>
       <!-- Connection Status Pill -->
@@ -84,11 +90,11 @@
           </div>
         </div>
 
-        <!-- Previous Sugar Records Feed -->
+        <!-- Previous Sugar Records Feed with IST Time -->
         <div class="space-y-1.5">
           <div class="flex justify-between items-center px-1">
             <span class="text-[11px] font-bold text-slate-600">All Previous Sugar Records</span>
-            <span class="text-[9px] text-slate-400 font-mono">ss:mm:hh AM/PM</span>
+            <span class="text-[9px] text-slate-400 font-mono">IST (HH:MM:SS AM/PM)</span>
           </div>
           <div id="sugar-feed" class="space-y-1.5 max-h-56 overflow-y-auto no-scrollbar"></div>
         </div>
@@ -119,7 +125,7 @@
 
         <!-- Timed 2-Hour Schedule -->
         <div class="flex items-center justify-between px-1">
-          <span class="text-xs font-black uppercase tracking-wider text-slate-500">⏱️ Hydration Protocol</span>
+          <span class="text-xs font-black uppercase tracking-wider text-slate-500">⏱️ Hydration Protocol (IST)</span>
           <span id="water-lock-count" class="text-[10px] font-extrabold text-blue-700">0/7 Logged</span>
         </div>
 
@@ -132,11 +138,11 @@
           <button onclick="logWaterCustom(250)" class="flex-1 py-1 bg-white text-[11px] font-bold text-slate-700 rounded-lg border border-slate-200 active:scale-95 shadow-sm">+250ml</button>
         </div>
 
-        <!-- ALL PREVIOUS WATER LOGS WITH DATES -->
+        <!-- ALL PREVIOUS WATER LOGS WITH DATES & IST TIME -->
         <div class="space-y-1.5 pt-2 border-t border-slate-200">
           <div class="flex justify-between items-center px-1">
             <span class="text-[11px] font-bold text-slate-600">All Previous Water Records</span>
-            <span class="text-[9px] text-slate-400 font-mono">ss:mm:hh AM/PM</span>
+            <span class="text-[9px] text-slate-400 font-mono">IST (HH:MM:SS AM/PM)</span>
           </div>
           <div id="water-all-feed" class="space-y-1.5 max-h-52 overflow-y-auto no-scrollbar"></div>
         </div>
@@ -173,11 +179,11 @@
           </form>
         </div>
 
-        <!-- ALL PREVIOUS MEALS WITH DATES -->
+        <!-- ALL PREVIOUS MEALS WITH DATES & IST TIME -->
         <div class="space-y-1.5 pt-1">
           <div class="flex justify-between items-center px-1">
             <span class="text-[11px] font-bold text-slate-600">All Previous Meals & Diet History</span>
-            <span class="text-[9px] text-slate-400 font-mono">ss:mm:hh AM/PM</span>
+            <span class="text-[9px] text-slate-400 font-mono">IST (HH:MM:SS AM/PM)</span>
           </div>
           <div id="food-all-feed" class="space-y-1.5 max-h-56 overflow-y-auto no-scrollbar"></div>
         </div>
@@ -209,32 +215,59 @@
         <div id="spike-alert-card" class="hidden p-3 rounded-2xl bg-rose-50 border border-rose-200 space-y-1.5 shadow-sm">
           <div class="flex items-center gap-1.5 text-xs font-black text-rose-800">
             <span>🚨</span>
-            <span>Today's Sugar Spikes & Time</span>
+            <span>Today's Sugar Spikes & Time (IST)</span>
           </div>
           <div id="today-spikes-list" class="space-y-1 text-[11px] text-rose-900 font-medium"></div>
         </div>
 
         <!-- ===============================================================
-             GLYCEMIC TREND GRAPH: ALL CHECKPOINTS IN ALL DAYS (SWIPEABLE)
+             GLYCEMIC TREND GRAPH: 6 SPECIFIC CHECKPOINT DOT COLORS
         ================================================================ -->
-        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-          <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-1">
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+          <div class="flex items-center justify-between">
             <div class="flex items-center gap-1.5">
               <span class="text-xs">📈</span>
               <span class="text-xs font-black uppercase tracking-wider text-slate-800">All Checkpoints Trend</span>
             </div>
-            <!-- Two-colored line legend -->
-            <div class="flex items-center gap-2 text-[9px] font-bold">
-              <span class="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Before Food
-              </span>
-              <span class="flex items-center gap-1 text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
-                <span class="w-2 h-2 rounded-full bg-rose-500"></span> After Food
-              </span>
+            <span id="chart-points-count" class="font-mono text-[9px] text-slate-400 font-bold">0 Points</span>
+          </div>
+
+          <!-- Color-Coded Checkpoint Legend -->
+          <div class="grid grid-cols-2 gap-1.5 text-[8.5px] font-bold p-2 bg-slate-50 rounded-xl border border-slate-200">
+            <!-- Before Food Group -->
+            <div class="space-y-0.5">
+              <span class="text-slate-400 block text-[8px] uppercase">Before Food:</span>
+              <div class="flex flex-wrap gap-1.5 items-center">
+                <span class="flex items-center gap-1 text-orange-700">
+                  <span class="w-2 h-2 rounded-full bg-[#f97316]"></span> Morn
+                </span>
+                <span class="flex items-center gap-1 text-green-700">
+                  <span class="w-2 h-2 rounded-full bg-[#22c55e]"></span> Noon
+                </span>
+                <span class="flex items-center gap-1 text-purple-700">
+                  <span class="w-2 h-2 rounded-full bg-[#a855f7]"></span> Eve
+                </span>
+              </div>
+            </div>
+
+            <!-- After Food Group -->
+            <div class="space-y-0.5 border-l border-slate-200 pl-2">
+              <span class="text-slate-400 block text-[8px] uppercase">After Food:</span>
+              <div class="flex flex-wrap gap-1.5 items-center">
+                <span class="flex items-center gap-1 text-red-700">
+                  <span class="w-2 h-2 rounded-full bg-[#ef4444]"></span> Morn
+                </span>
+                <span class="flex items-center gap-1 text-yellow-700">
+                  <span class="w-2 h-2 rounded-full bg-[#eab308]"></span> Noon
+                </span>
+                <span class="flex items-center gap-1 text-blue-700">
+                  <span class="w-2 h-2 rounded-full bg-[#3b82f6]"></span> Eve
+                </span>
+              </div>
             </div>
           </div>
 
-          <!-- Horizontal Scrollable Container for All Checkpoints -->
+          <!-- Horizontal Scrollable Container -->
           <div class="overflow-x-auto no-scrollbar w-full border border-slate-100 rounded-xl bg-slate-50/40 p-1">
             <div id="chart-scroll-wrapper" class="relative h-48 w-full min-w-[320px]">
               <canvas id="sugarTrendChart"></canvas>
@@ -244,9 +277,9 @@
             </div>
           </div>
 
-          <div class="flex justify-between items-center text-[9px] text-slate-500 border-t border-slate-100 pt-1.5 font-medium">
-            <span>● Indian Limits: &lt;100 Pre / &lt;140 Post</span>
-            <span id="chart-points-count" class="font-mono text-slate-400">0 Checkpoints</span>
+          <div class="flex justify-between items-center text-[9px] text-slate-500 border-t border-slate-100 pt-1 font-medium">
+            <span>● Limits: &lt;100 Pre / &lt;140 Post</span>
+            <span class="text-slate-400">Tap dot for details</span>
           </div>
         </div>
 
@@ -295,7 +328,7 @@
       storageBucket: "my-doctor-b360a.firebasestorage.app",
       messagingSenderId: "857935252223",
       appId: "1:857935252223:web:84e76a78218ea623f3daca"
-      };
+    };
 
     let db = null;
     let isFirebaseActive = false;
@@ -326,7 +359,92 @@
     }
 
     /* ====================================================================
-       2. PROTOCOLS & DATA DEFINITIONS
+       2. RESTRUCTURED INDIAN STANDARD TIME (IST: UTC + 5:30) ENGINE
+          Format: DD/MM/YYYY and HH:MM:SS AM/PM
+    ==================================================================== */
+    function getIST(dateInput = new Date()) {
+      let d = dateInput;
+      if (typeof dateInput === 'number' || typeof dateInput === 'string') {
+        d = new Date(dateInput);
+      }
+      if (isNaN(d.getTime())) {
+        d = new Date();
+      }
+
+      const istOffsetMs = 5.5 * 60 * 60 * 1000;
+      const utcMs = d.getTime() + (d.getTimezoneOffset() * 60 * 1000);
+      const istDate = new Date(utcMs + istOffsetMs);
+
+      const day = String(istDate.getDate()).padStart(2, '0');
+      const month = String(istDate.getMonth() + 1).padStart(2, '0');
+      const year = istDate.getFullYear();
+
+      let hours = istDate.getHours();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // 12-hour format
+
+      const hh = String(hours).padStart(2, '0');
+      const mm = String(istDate.getMinutes()).padStart(2, '0');
+      const ss = String(istDate.getSeconds()).padStart(2, '0');
+
+      const timeOnly = `${hh}:${mm}:${ss} ${ampm}`;
+      const dateKey = `${day}/${month}/${year}`;
+      const full = `${dateKey} ${timeOnly}`;
+
+      return {
+        dateKey: dateKey,
+        timeOnly: timeOnly,
+        full: full,
+        rawDate: d.getTime()
+      };
+    }
+
+    // Live Header Clock
+    function startISTClock() {
+      function update() {
+        const ist = getIST(new Date());
+        const clockEl = document.getElementById("live-ist-clock");
+        if (clockEl) {
+          clockEl.innerText = `${ist.dateKey} • ${ist.timeOnly}`;
+        }
+      }
+      update();
+      setInterval(update, 1000);
+    }
+
+    // Universal IST Formatter
+    function getISTTimeOnly(entry) {
+      if (!entry) return "--:--:-- --";
+      if (entry.rawDate && !isNaN(entry.rawDate)) {
+        return getIST(entry.rawDate).timeOnly;
+      }
+      if (entry.timeStr && entry.timeStr.includes(":")) {
+        return entry.timeStr;
+      }
+      if (entry.timestamp) {
+        const parts = entry.timestamp.trim().split(" ");
+        if (parts.length >= 3) {
+          return `${parts[1]} ${parts[2]}`;
+        }
+        return parts[1] || entry.timestamp;
+      }
+      return getIST().timeOnly;
+    }
+
+    function getISTFull(entry) {
+      if (!entry) return "--/--/---- --:--:-- --";
+      if (entry.rawDate && !isNaN(entry.rawDate)) {
+        return getIST(entry.rawDate).full;
+      }
+      if (entry.timestamp && entry.timestamp.includes("/")) {
+        return entry.timestamp;
+      }
+      return getIST().full;
+    }
+
+    /* ====================================================================
+       3. PROTOCOLS & DATA DEFINITIONS
     ==================================================================== */
     const SUGAR_SLOTS = [
       { id: "s1", name: "Morning Before Food", short: "Fasting", icon: "🌅" },
@@ -355,32 +473,6 @@
       { name: "Dinner", short: "Dinner", icon: "🍽️" }
     ];
 
-    /* ====================================================================
-       3. STRICT TIME FORMAT: dd/mm/yyyy ss:mm:hh AM/PM
-    ==================================================================== */
-    function getFormattedTimestamp(d = new Date()) {
-      const p = n => String(n).padStart(2, '0');
-      const dd = p(d.getDate());
-      const mm = p(d.getMonth() + 1);
-      const yyyy = d.getFullYear();
-
-      let hours = d.getHours();
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      hours = hours % 12;
-      hours = hours ? hours : 12;
-
-      const hh = p(hours);
-      const min = p(d.getMinutes());
-      const ss = p(d.getSeconds());
-
-      return `${dd}/${mm}/${yyyy} ${ss}:${min}:${hh} ${ampm}`;
-    }
-
-    function getTodayKey() {
-      const d = new Date();
-      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-    }
-
     function evalSugar(val, slot) {
       const n = parseFloat(val);
       const isPre = slot.toLowerCase().includes("before");
@@ -397,7 +489,7 @@
     }
 
     /* ====================================================================
-       4. DATABASE ENGINE (FIRESTORE + LOCALSTORAGE)
+       4. DATABASE ENGINE
     ==================================================================== */
     async function saveItem(col, item) {
       if (isFirebaseActive && db) {
@@ -454,9 +546,9 @@
       const val = parseFloat(document.getElementById("sugar-value").value);
       if (!slot) { alert("Please tap a slot above!"); return; }
 
-      const today = getTodayKey();
+      const ist = getIST();
       const all = await loadItems("sugar_logs");
-      if (all.some(s => s.dateKey === today && s.slot === slot)) {
+      if (all.some(s => s.dateKey === ist.dateKey && s.slot === slot)) {
         alert("🔒 This checkpoint is already locked for today!");
         return;
       }
@@ -464,7 +556,10 @@
       const res = evalSugar(val, slot);
       await saveItem("sugar_logs", {
         slot, value: val, status: res.tag, statusColor: res.color, isSpike: res.isSpike,
-        timestamp: getFormattedTimestamp(), dateKey: today, rawDate: Date.now()
+        timeStr: ist.timeOnly,
+        timestamp: ist.full,
+        dateKey: ist.dateKey,
+        rawDate: ist.rawDate
       });
 
       document.getElementById("sugar-value").value = "";
@@ -475,9 +570,9 @@
     });
 
     async function renderSugarChips() {
-      const today = getTodayKey();
+      const ist = getIST();
       const logs = await loadItems("sugar_logs");
-      const todayLogs = logs.filter(s => s.dateKey === today);
+      const todayLogs = logs.filter(s => s.dateKey === ist.dateKey);
       const lockedMap = {};
       todayLogs.forEach(s => { lockedMap[s.slot] = s; });
 
@@ -522,7 +617,7 @@
         div.innerHTML = `
           <div>
             <div class="font-bold text-slate-800">${l.slot}</div>
-            <div class="text-[9px] font-mono text-slate-500">${l.timestamp}</div>
+            <div class="text-[9px] font-mono text-slate-500">${getISTFull(l)}</div>
           </div>
           <div class="text-right">
             <span class="font-black text-slate-900">${l.value} mg</span>
@@ -534,36 +629,43 @@
     }
 
     /* ====================================================================
-       7. WATER MODULE (~2-HR LOCK & ALL PREVIOUS)
+       7. WATER MODULE
     ==================================================================== */
     async function lockWater(id) {
       const def = WATER_SLOTS.find(w => w.id === id);
       if (!def) return;
-      const today = getTodayKey();
+      const ist = getIST();
       const all = await loadItems("water_logs");
-      if (all.some(w => w.dateKey === today && w.slotId === id)) {
+      if (all.some(w => w.dateKey === ist.dateKey && w.slotId === id)) {
         alert("🔒 Slot already locked for today!");
         return;
       }
       await saveItem("water_logs", {
         slotId: def.id, name: def.name, time: def.time, amount: def.amount,
-        timestamp: getFormattedTimestamp(), dateKey: today, rawDate: Date.now()
+        timeStr: ist.timeOnly,
+        timestamp: ist.full,
+        dateKey: ist.dateKey,
+        rawDate: ist.rawDate
       });
       fetchAllData();
     }
 
     async function logWaterCustom(ml) {
+      const ist = getIST();
       await saveItem("water_logs", {
         slotId: "EXTRA", name: "Extra Sip", time: "--", amount: ml,
-        timestamp: getFormattedTimestamp(), dateKey: getTodayKey(), rawDate: Date.now()
+        timeStr: ist.timeOnly,
+        timestamp: ist.full,
+        dateKey: ist.dateKey,
+        rawDate: ist.rawDate
       });
       fetchAllData();
     }
 
     async function renderWater() {
-      const today = getTodayKey();
+      const ist = getIST();
       const logs = await loadItems("water_logs");
-      const todayWaters = logs.filter(w => w.dateKey === today);
+      const todayWaters = logs.filter(w => w.dateKey === ist.dateKey);
       const lockedIds = new Set(todayWaters.map(w => w.slotId));
 
       const total = todayWaters.reduce((acc, c) => acc + c.amount, 0);
@@ -618,7 +720,7 @@
         item.innerHTML = `
           <div>
             <div class="font-bold text-slate-800">💧 ${w.name || 'Water'} (${w.amount} ml)</div>
-            <div class="text-[9px] font-mono text-slate-500">${w.timestamp}</div>
+            <div class="text-[9px] font-mono text-slate-500">${getISTFull(w)}</div>
           </div>
           <span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">+${w.amount}ml</span>
         `;
@@ -627,7 +729,7 @@
     }
 
     /* ====================================================================
-       8. FOOD MODULE (MEALS LOCK & ALL PREVIOUS)
+       8. FOOD MODULE
     ==================================================================== */
     let selectedMealType = "";
 
@@ -652,16 +754,19 @@
       const desc = document.getElementById("food-desc").value;
       if (!meal) { alert("Please tap a meal slot above!"); return; }
 
-      const today = getTodayKey();
+      const ist = getIST();
       const all = await loadItems("food_logs");
-      if (all.some(f => f.dateKey === today && f.mealType === meal)) {
+      if (all.some(f => f.dateKey === ist.dateKey && f.mealType === meal)) {
         alert("🔒 This meal is already locked for today!");
         return;
       }
 
       await saveItem("food_logs", {
         mealType: meal, description: desc, suggestion: generateFoodAdvice(desc),
-        timestamp: getFormattedTimestamp(), dateKey: today, rawDate: Date.now()
+        timeStr: ist.timeOnly,
+        timestamp: ist.full,
+        dateKey: ist.dateKey,
+        rawDate: ist.rawDate
       });
 
       document.getElementById("food-desc").value = "";
@@ -672,9 +777,9 @@
     });
 
     async function renderMealChips() {
-      const today = getTodayKey();
+      const ist = getIST();
       const logs = await loadItems("food_logs");
-      const todayLogs = logs.filter(f => f.dateKey === today);
+      const todayLogs = logs.filter(f => f.dateKey === ist.dateKey);
       const lockedMap = {};
       todayLogs.forEach(f => { lockedMap[f.mealType] = f; });
 
@@ -719,7 +824,7 @@
         div.innerHTML = `
           <div class="flex justify-between items-center font-bold">
             <span class="text-emerald-700 font-bold">${f.mealType}</span>
-            <span class="text-[9px] font-mono text-slate-500">${f.timestamp}</span>
+            <span class="text-[9px] font-mono text-slate-500">${getISTFull(f)}</span>
           </div>
           <div class="text-slate-800 font-medium">${f.description}</div>
           <div class="text-[10px] text-indigo-700 italic">💡 ${f.suggestion}</div>
@@ -729,7 +834,15 @@
     }
 
     /* ====================================================================
-       9. TWO-COLORED GRAPH: ALL CHECKPOINTS IN ALL DAYS (SWIPEABLE)
+       9. TWO-COLORED GRAPH: SPECIFIC CHECKPOINT DOT COLORS
+          After Food:
+            - Morning After Food -> Red (#ef4444)
+            - Noon After Food    -> Yellow (#eab308)
+            - Evening After Food -> Blue (#3b82f6)
+          Before Food:
+            - Morning Before Food -> Orange (#f97316)
+            - Noon Before Food    -> Green (#22c55e)
+            - Evening Before Food -> Purple (#a855f7)
     ==================================================================== */
     function renderSugarTrendChart(sugars) {
       const canvas = document.getElementById("sugarTrendChart");
@@ -743,13 +856,13 @@
           sugarChartInstance = null;
         }
         emptyMsg.classList.remove("hidden");
-        document.getElementById("chart-points-count").innerText = "0 Checkpoints";
+        document.getElementById("chart-points-count").innerText = "0 Points";
         return;
       }
 
       emptyMsg.classList.add("hidden");
 
-      // Sort unique dates chronologically (oldest to newest)
+      // Sort dates chronologically
       const uniqueDates = Array.from(new Set(sugars.map(s => s.dateKey))).filter(Boolean);
       uniqueDates.sort((a, b) => {
         const [d1, m1, y1] = a.split('/').map(Number);
@@ -757,12 +870,12 @@
         return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
       });
 
-      // Assemble all 3 paired checkpoints (Morning, Noon, Evening) for every single day
       const labels = [];
       const beforeFoodData = [];
       const afterFoodData = [];
-      const metaInfo = []; // stores details for tooltips
-
+      const beforePointColors = [];
+      const afterPointColors = [];
+      const metaInfo = [];
       let totalPointsCount = 0;
 
       uniqueDates.forEach(dateStr => {
@@ -770,43 +883,66 @@
         const shortDate = dateStr.slice(0, 5); // DD/MM
 
         // 1. Morning Checkpoint Pair
+        // Before Food = Orange (#f97316) | After Food = Red (#ef4444)
         const mornPre = daySugars.find(s => s.slot === "Morning Before Food");
         const mornPost = daySugars.find(s => s.slot === "Morning After Food");
         if (mornPre || mornPost) {
           labels.push(`${shortDate} 🌅`);
           beforeFoodData.push(mornPre ? mornPre.value : null);
           afterFoodData.push(mornPost ? mornPost.value : null);
-          metaInfo.push({ date: dateStr, interval: "Morning (Breakfast)", pre: mornPre, post: mornPost });
+          beforePointColors.push("#f97316"); // Orange
+          afterPointColors.push("#ef4444");  // Red
+          metaInfo.push({ 
+            shortDate: shortDate, 
+            slotName: "Morn", 
+            preVal: mornPre ? mornPre.value : null, 
+            postVal: mornPost ? mornPost.value : null 
+          });
           totalPointsCount += (mornPre ? 1 : 0) + (mornPost ? 1 : 0);
         }
 
         // 2. Noon Checkpoint Pair
+        // Before Food = Green (#22c55e) | After Food = Yellow (#eab308)
         const noonPre = daySugars.find(s => s.slot === "Noon Before Food");
         const noonPost = daySugars.find(s => s.slot === "Noon After Food");
         if (noonPre || noonPost) {
           labels.push(`${shortDate} ☀️`);
           beforeFoodData.push(noonPre ? noonPre.value : null);
           afterFoodData.push(noonPost ? noonPost.value : null);
-          metaInfo.push({ date: dateStr, interval: "Noon (Lunch)", pre: noonPre, post: noonPost });
+          beforePointColors.push("#22c55e"); // Green
+          afterPointColors.push("#eab308");  // Yellow
+          metaInfo.push({ 
+            shortDate: shortDate, 
+            slotName: "Noon", 
+            preVal: noonPre ? noonPre.value : null, 
+            postVal: noonPost ? noonPost.value : null 
+          });
           totalPointsCount += (noonPre ? 1 : 0) + (noonPost ? 1 : 0);
         }
 
         // 3. Evening Checkpoint Pair
+        // Before Food = Purple (#a855f7) | After Food = Blue (#3b82f6)
         const evePre = daySugars.find(s => s.slot === "Evening/Night Before Food");
         const evePost = daySugars.find(s => s.slot === "Evening/Night After Food");
         if (evePre || evePost) {
           labels.push(`${shortDate} 🌙`);
           beforeFoodData.push(evePre ? evePre.value : null);
           afterFoodData.push(evePost ? evePost.value : null);
-          metaInfo.push({ date: dateStr, interval: "Evening (Dinner)", pre: evePre, post: evePost });
+          beforePointColors.push("#a855f7"); // Purple (Violet)
+          afterPointColors.push("#3b82f6");  // Blue
+          metaInfo.push({ 
+            shortDate: shortDate, 
+            slotName: "Eve", 
+            preVal: evePre ? evePre.value : null, 
+            postVal: evePost ? evePost.value : null 
+          });
           totalPointsCount += (evePre ? 1 : 0) + (evePost ? 1 : 0);
         }
       });
 
-      document.getElementById("chart-points-count").innerText = `${totalPointsCount} Total Checkpoints`;
+      document.getElementById("chart-points-count").innerText = `${totalPointsCount} Points`;
 
-      // Dynamically expand canvas width if many checkpoints exist so points remain swipeable & uncluttered
-      const minCalculatedWidth = Math.max(340, labels.length * 45);
+      const minCalculatedWidth = Math.max(340, labels.length * 48);
       scrollWrapper.style.minWidth = minCalculatedWidth + "px";
 
       if (sugarChartInstance) {
@@ -823,29 +959,30 @@
             {
               label: "Before Food",
               data: beforeFoodData,
-              borderColor: "#10b981", // Emerald
-              backgroundColor: "rgba(16, 185, 129, 0.08)",
-              borderWidth: 2.2,
+              borderColor: "rgba(16, 185, 129, 0.4)", // connecting guide line
+              backgroundColor: "transparent",
+              borderWidth: 2,
+              borderDash: [3, 3], // dashed line to distinguish pre-meal
               tension: 0.25,
-              pointBackgroundColor: "#10b981",
+              pointBackgroundColor: beforePointColors, // Orange, Green, Purple
               pointBorderColor: "#ffffff",
-              pointBorderWidth: 1.5,
-              pointRadius: 4.5,
-              pointHoverRadius: 6.5,
+              pointBorderWidth: 2,
+              pointRadius: 6,
+              pointHoverRadius: 8.5,
               spanGaps: true
             },
             {
               label: "After Food",
               data: afterFoodData,
-              borderColor: "#f43f5e", // Rose
-              backgroundColor: "rgba(244, 63, 94, 0.08)",
-              borderWidth: 2.2,
+              borderColor: "rgba(244, 63, 94, 0.4)", // connecting guide line
+              backgroundColor: "transparent",
+              borderWidth: 2,
               tension: 0.25,
-              pointBackgroundColor: "#f43f5e",
+              pointBackgroundColor: afterPointColors, // Red, Yellow, Blue
               pointBorderColor: "#ffffff",
-              pointBorderWidth: 1.5,
-              pointRadius: 4.5,
-              pointHoverRadius: 6.5,
+              pointBorderWidth: 2,
+              pointRadius: 6,
+              pointHoverRadius: 8.5,
               spanGaps: true
             }
           ]
@@ -854,31 +991,36 @@
           responsive: true,
           maintainAspectRatio: false,
           interaction: {
-            mode: "index",
-            intersect: false
+            mode: "nearest",
+            intersect: true
           },
           plugins: {
             legend: { display: false },
             tooltip: {
               backgroundColor: "#0f172a",
-              titleColor: "#f8fafc",
-              bodyColor: "#f8fafc",
-              titleFont: { size: 10, weight: "bold" },
-              bodyFont: { size: 11 },
-              padding: 8,
-              cornerRadius: 10,
+              padding: 10,
+              cornerRadius: 12,
+              displayColors: true,
+              boxWidth: 8,
+              boxHeight: 8,
+              titleColor: "#94a3b8", // SHORT AND SMALL DATE & CHECKPOINT
+              titleFont: { size: 9, weight: "bold" },
+              bodyColor: "#ffffff",
+              bodyFont: { size: 16, weight: "900" }, // EXACT VALUE IN MG/DL AS BIG
               callbacks: {
                 title: function(items) {
                   const idx = items[0].dataIndex;
+                  const datasetIdx = items[0].datasetIndex;
                   const m = metaInfo[idx];
-                  return `${m.date} - ${m.interval}`;
+                  const checkpointType = datasetIdx === 0 ? "Pre-Food" : "Post-Food";
+                  // SHORT AND SMALL
+                  return `${m.shortDate} • ${m.slotName} (${checkpointType})`;
                 },
                 label: function(context) {
                   const val = context.parsed.y;
-                  if (val === null || val === undefined) return null;
-                  const isPre = context.datasetIndex === 0;
-                  const limit = isPre ? "<100" : "<140";
-                  return ` ${context.dataset.label}: ${val} mg/dL (Limit: ${limit})`;
+                  if (val === null || val === undefined) return "";
+                  // EXACT VALUE IN MG/DL AS BIG
+                  return ` ${val} mg/dL`;
                 }
               }
             }
@@ -908,7 +1050,6 @@
         }
       });
 
-      // Auto-scroll the chart to the latest data point on the right
       const container = scrollWrapper.parentElement;
       if (container) {
         container.scrollLeft = container.scrollWidth;
@@ -919,13 +1060,13 @@
        10. INSIGHTS TAB (STATS, ALL CHECKPOINTS GRAPH & DAILY SPIKES)
     ==================================================================== */
     async function renderReport() {
-      const today = getTodayKey();
+      const ist = getIST();
       const sugars = await loadItems("sugar_logs");
       const waters = await loadItems("water_logs");
       const foods = await loadItems("food_logs");
 
-      const todaySugars = sugars.filter(s => s.dateKey === today);
-      const todayWaters = waters.filter(w => w.dateKey === today);
+      const todaySugars = sugars.filter(s => s.dateKey === ist.dateKey);
+      const todayWaters = waters.filter(w => w.dateKey === ist.dateKey);
 
       // Top Stat Tiles
       if (todaySugars.length > 0) {
@@ -957,7 +1098,7 @@
           const div = document.createElement("div");
           div.className = "flex justify-between items-center";
           div.innerHTML = `
-            <span>⚠️ ${spk.slot.split(' ')[0]} (${spk.timestamp.split(' ')[1]} ${spk.timestamp.split(' ')[2]})</span>
+            <span>⚠️ ${spk.slot.split(' ')[0]} (${getISTTimeOnly(spk)})</span>
             <span class="font-mono font-bold">${spk.value} mg (${spk.status})</span>
           `;
           spikeList.appendChild(div);
@@ -966,31 +1107,30 @@
         spikeCard.classList.add("hidden");
       }
 
-      // RENDER ALL CHECKPOINTS ACROSS ALL DAYS ON GRAPH
+      // Render Graph with 6 Dot Colors & Big Tooltip values
       renderSugarTrendChart(sugars);
 
-      // Datewise Archive (SHOWING WHEN SUGAR SPIKED EACH DAY)
+      // Datewise Archive
       const archive = document.getElementById("date-archive-list");
       archive.innerHTML = "";
 
-      const dates = Array.from(new Set([today, ...sugars.map(s=>s.dateKey), ...waters.map(w=>w.dateKey), ...foods.map(f=>f.dateKey)])).filter(Boolean);
+      const dates = Array.from(new Set([ist.dateKey, ...sugars.map(s=>s.dateKey), ...waters.map(w=>w.dateKey), ...foods.map(f=>f.dateKey)])).filter(Boolean);
       dates.sort((a,b) => {
         const [d1,m1,y1] = a.split('/').map(Number);
         const [d2,m2,y2] = b.split('/').map(Number);
-        return new Date(y2,m2-1,d2) - new Date(y1,m1-1,d1);
+        return new Date(y1,m1-1,d1) - new Date(y2,m2-1,d2);
       });
 
       dates.forEach(d => {
         const dSugars = sugars.filter(s => s.dateKey === d);
         const dWaters = waters.filter(w => w.dateKey === d);
         const dFoods = foods.filter(f => f.dateKey === d);
-        const isToday = (d === today);
+        const isToday = (d === ist.dateKey);
 
         let dAvg = "--";
         if (dSugars.length > 0) dAvg = Math.round(dSugars.reduce((a,c)=>a+c.value,0)/dSugars.length);
         const dWaterTotal = dWaters.reduce((a,c)=>a+c.amount,0);
 
-        // Find Spikes on THIS day
         const daySpikes = dSugars.filter(s => {
           const isPre = s.slot.toLowerCase().includes("before");
           return isPre ? (s.value >= 100) : (s.value >= 140);
@@ -1019,10 +1159,10 @@
           <!-- Collapsible Body -->
           <div class="p-3 border-t border-slate-200 bg-white space-y-2.5 text-xs">
             
-            <!-- WHEN SUGAR SPIKED ON THIS DAY -->
+            <!-- WHEN SUGAR SPIKED ON THIS DAY IN IST -->
             <div class="p-2 rounded-xl bg-rose-50 border border-rose-200 space-y-1">
               <div class="text-[10px] font-bold uppercase text-rose-800 flex items-center gap-1">
-                <span>🚨</span> Sugar Spikes Breakdown on ${d}:
+                <span>🚨</span> Sugar Spikes Breakdown on ${d} (IST):
               </div>
               ${daySpikes.length > 0 ? daySpikes.map(spk => `
                 <div class="p-1.5 bg-white rounded-lg border border-rose-200 text-[10px] space-y-0.5">
@@ -1030,7 +1170,7 @@
                     <span class="text-rose-800">⚠️ ${spk.slot}</span>
                     <span class="text-rose-700 font-mono font-black">${spk.value} mg/dL (${spk.status})</span>
                   </div>
-                  <div class="text-slate-500 font-mono text-[9px]">Exact Time: ${spk.timestamp.split(' ')[1]} ${spk.timestamp.split(' ')[2]}</div>
+                  <div class="text-slate-500 font-mono text-[9px]">Exact Time (IST): ${getISTTimeOnly(spk)}</div>
                 </div>
               `).join('') : '<p class="text-[10px] text-emerald-800 font-medium">✅ Stable glucose control. Zero spikes occurred on this date.</p>'}
             </div>
@@ -1043,7 +1183,7 @@
                   <div class="p-1.5 bg-slate-50 rounded-lg border border-slate-200 text-[10px] flex justify-between">
                     <div>
                       <div class="font-bold text-slate-700">${s.slot.split(' ')[0]}</div>
-                      <div class="text-[8px] font-mono text-slate-400">${s.timestamp.split(' ')[1]} ${s.timestamp.split(' ')[2]}</div>
+                      <div class="text-[8px] font-mono text-slate-400">${getISTTimeOnly(s)}</div>
                     </div>
                     <span class="font-bold text-slate-900">${s.value} mg</span>
                   </div>
@@ -1059,7 +1199,7 @@
                   <div class="text-[10px] text-slate-700 bg-slate-50 p-1.5 rounded-lg border border-slate-200">
                     <div class="flex justify-between items-center">
                       <strong class="text-emerald-700">${f.mealType}</strong>
-                      <span class="text-[8px] font-mono text-slate-400">${f.timestamp.split(' ')[1]} ${f.timestamp.split(' ')[2]}</span>
+                      <span class="text-[8px] font-mono text-slate-400">${getISTTimeOnly(f)}</span>
                     </div>
                     <div class="text-slate-800 font-medium">${f.description}</div>
                   </div>
@@ -1074,7 +1214,6 @@
     }
 
     function fetchAllData() {
-      document.getElementById("current-date-badge").innerText = getTodayKey();
       renderSugarChips();
       renderWater();
       renderMealChips();
@@ -1082,6 +1221,7 @@
     }
 
     window.addEventListener("DOMContentLoaded", () => {
+      startISTClock();
       initFirebase();
     });
   </script>
