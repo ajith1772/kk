@@ -24,7 +24,7 @@
   <!-- Mobile Phone Frame Container (Max 440px) -->
   <div class="w-full max-w-md bg-white min-h-screen flex flex-col justify-between relative shadow-xl pb-24 border-x border-slate-200">
 
-    <!-- Top App Bar with Live Indian Standard Time (IST) -->
+    <!-- Top App Bar with Live Indian Standard Time (IST) & Cloud Sync -->
     <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md px-4 py-2.5 flex items-center justify-between border-b border-slate-200 shadow-sm">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-indigo-600 flex items-center justify-center font-black text-sm text-white shadow-sm">
@@ -35,25 +35,30 @@
             <h1 class="text-sm font-black tracking-tight leading-none text-slate-900">GlycoFit</h1>
             <span class="text-[9px] font-bold px-1.5 py-0.2 bg-orange-100 text-orange-800 rounded border border-orange-200">IST</span>
           </div>
-          <!-- Live Real-Time Clock in IST (DD/MM/YYYY • HH:MM:SS AM/PM) -->
           <div id="live-ist-clock" class="text-[10px] font-mono text-slate-600 font-semibold mt-0.5">
             --/--/---- • --:--:-- --
           </div>
         </div>
       </div>
-      <!-- Connection Status Pill -->
-      <div id="conn-pill" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-300">
-        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-        <span id="conn-text">Syncing</span>
+      <!-- Cloud Status & Clear Memory Action -->
+      <div class="flex items-center gap-1.5">
+        <button onclick="clearLocalAndSyncCloud()" title="Reload fresh from Firebase" 
+                class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-[10px] font-bold flex items-center gap-1 active:scale-95 shadow-2xs">
+          <span>🧹</span>
+          <span>Sync</span>
+        </button>
+        <div id="conn-pill" class="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-300">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          <span id="conn-text">Syncing</span>
+        </div>
       </div>
     </header>
 
     <!-- Main Content Area -->
     <main class="p-3 space-y-4 flex-1 overflow-y-auto">
 
-      <!-- ==================== TAB 1: SUGAR (6x LOCK) ==================== -->
+      <!-- ==================== TAB 1: SUGAR (6x LOCK & DATEWISE HISTORY) ==================== -->
       <section id="tab-sugar" class="tab-view space-y-3">
-        
         <div class="flex items-center justify-between px-1">
           <span class="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
             <span>⏱️</span> 6-Checkpoint Protocol
@@ -63,10 +68,8 @@
           </span>
         </div>
 
-        <!-- 6 Checkpoint Tap Chips -->
         <div id="sugar-chips-grid" class="grid grid-cols-3 gap-2"></div>
 
-        <!-- Quick Log Box -->
         <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2.5 shadow-sm">
           <div class="flex items-center justify-between">
             <span id="selected-slot-label" class="text-xs font-bold text-indigo-700 truncate">Tap a checkpoint above</span>
@@ -82,7 +85,6 @@
             </button>
           </form>
 
-          <!-- Micro Legend -->
           <div class="flex justify-between text-[9px] font-bold pt-1.5 text-slate-500 border-t border-slate-200">
             <span class="text-emerald-600 flex items-center gap-0.5">● &lt;140 Good</span>
             <span class="text-amber-600 flex items-center gap-0.5">● 140-199 Mod</span>
@@ -90,20 +92,18 @@
           </div>
         </div>
 
-        <!-- Previous Sugar Records Feed with IST Time -->
-        <div class="space-y-1.5">
+        <!-- DATEWISE GROUPED SUGAR RECORDS -->
+        <div class="space-y-2">
           <div class="flex justify-between items-center px-1">
-            <span class="text-[11px] font-bold text-slate-600">All Previous Sugar Records</span>
+            <span class="text-[11px] font-bold text-slate-600">Sugar Records (Grouped by Date)</span>
             <span class="text-[9px] text-slate-400 font-mono">IST (HH:MM:SS AM/PM)</span>
           </div>
-          <div id="sugar-feed" class="space-y-1.5 max-h-56 overflow-y-auto no-scrollbar"></div>
+          <div id="sugar-feed" class="space-y-2 max-h-60 overflow-y-auto no-scrollbar"></div>
         </div>
       </section>
 
-      <!-- ==================== TAB 2: WATER (~2-HR LOCK & ALL PREVIOUS) ==================== -->
+      <!-- ==================== TAB 2: WATER (~2-HR LOCK & DATEWISE HISTORY) ==================== -->
       <section id="tab-water" class="tab-view hidden space-y-3">
-        
-        <!-- Hydration Gauge Card -->
         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-3.5 rounded-2xl border border-blue-200 space-y-2 shadow-sm">
           <div class="flex justify-between items-end">
             <div>
@@ -117,13 +117,11 @@
               Needy
             </span>
           </div>
-          <!-- Progress Bar -->
           <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
             <div id="water-bar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
           </div>
         </div>
 
-        <!-- Timed 2-Hour Schedule -->
         <div class="flex items-center justify-between px-1">
           <span class="text-xs font-black uppercase tracking-wider text-slate-500">⏱️ Hydration Protocol (IST)</span>
           <span id="water-lock-count" class="text-[10px] font-extrabold text-blue-700">0/7 Logged</span>
@@ -131,26 +129,24 @@
 
         <div id="water-slots-list" class="space-y-1.5"></div>
 
-        <!-- Extra Sip Log -->
         <div class="flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200">
           <span class="text-[11px] text-slate-600 font-medium">Extra sip:</span>
           <button onclick="logWaterCustom(150)" class="flex-1 py-1 bg-white text-[11px] font-bold text-slate-700 rounded-lg border border-slate-200 active:scale-95 shadow-sm">+150ml</button>
           <button onclick="logWaterCustom(250)" class="flex-1 py-1 bg-white text-[11px] font-bold text-slate-700 rounded-lg border border-slate-200 active:scale-95 shadow-sm">+250ml</button>
         </div>
 
-        <!-- ALL PREVIOUS WATER LOGS WITH DATES & IST TIME -->
-        <div class="space-y-1.5 pt-2 border-t border-slate-200">
+        <!-- DATEWISE GROUPED WATER RECORDS -->
+        <div class="space-y-2 pt-2 border-t border-slate-200">
           <div class="flex justify-between items-center px-1">
-            <span class="text-[11px] font-bold text-slate-600">All Previous Water Records</span>
+            <span class="text-[11px] font-bold text-slate-600">Water Intake History (Grouped by Date)</span>
             <span class="text-[9px] text-slate-400 font-mono">IST (HH:MM:SS AM/PM)</span>
           </div>
-          <div id="water-all-feed" class="space-y-1.5 max-h-52 overflow-y-auto no-scrollbar"></div>
+          <div id="water-all-feed" class="space-y-2 max-h-56 overflow-y-auto no-scrollbar"></div>
         </div>
       </section>
 
-      <!-- ==================== TAB 3: DIET (MEALS LOCK & ALL PREVIOUS) ==================== -->
+      <!-- ==================== TAB 3: DIET (MEALS LOCK & DATEWISE HISTORY) ==================== -->
       <section id="tab-food" class="tab-view hidden space-y-3">
-        
         <div class="flex items-center justify-between px-1">
           <span class="text-xs font-black uppercase tracking-wider text-slate-500">🥗 Meals Protocol</span>
           <span id="food-lock-pill" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -158,10 +154,8 @@
           </span>
         </div>
 
-        <!-- 5 Meal Selector Chips -->
         <div id="meal-chips-grid" class="grid grid-cols-3 gap-2"></div>
 
-        <!-- Meal Input Form -->
         <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2 shadow-sm">
           <div class="flex items-center justify-between">
             <span id="selected-meal-label" class="text-xs font-bold text-emerald-800 truncate">Tap a meal slot above</span>
@@ -179,17 +173,97 @@
           </form>
         </div>
 
-        <!-- ALL PREVIOUS MEALS WITH DATES & IST TIME -->
-        <div class="space-y-1.5 pt-1">
+        <!-- DATEWISE GROUPED MEALS RECORDS -->
+        <div class="space-y-2 pt-1">
           <div class="flex justify-between items-center px-1">
-            <span class="text-[11px] font-bold text-slate-600">All Previous Meals & Diet History</span>
+            <span class="text-[11px] font-bold text-slate-600">Diet & Meals History (Grouped by Date)</span>
             <span class="text-[9px] text-slate-400 font-mono">IST (HH:MM:SS AM/PM)</span>
           </div>
-          <div id="food-all-feed" class="space-y-1.5 max-h-56 overflow-y-auto no-scrollbar"></div>
+          <div id="food-all-feed" class="space-y-2 max-h-56 overflow-y-auto no-scrollbar"></div>
         </div>
       </section>
 
-      <!-- ==================== TAB 4: INSIGHTS & ALL CHECKPOINTS GRAPH ==================== -->
+      <!-- ==================== TAB 4: MEDICINE (PRESCRIPTION & EXACT NEXT REMINDERS) ==================== -->
+      <section id="tab-meds" class="tab-view hidden space-y-3">
+        <div class="flex items-center justify-between px-1">
+          <div>
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+              <span>💊</span> Prescribed Medicines
+            </span>
+            <span class="text-[9px] text-teal-700 font-semibold">Dr. Seethal Regimen</span>
+          </div>
+          <span id="med-lock-pill" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+            0/4 Taken
+          </span>
+        </div>
+
+        <!-- Wednesday Alert (Active only on Wednesdays) -->
+        <div id="wed-d3-banner" class="hidden p-2.5 rounded-xl bg-amber-50 border border-amber-300 flex items-center gap-2 shadow-2xs">
+          <span class="text-lg">🔔</span>
+          <div class="text-[11px] text-amber-900 font-semibold leading-tight">
+            <strong>Today is Wednesday!</strong> Take your weekly <strong>VAST IWO D3 60000</strong> capsule.
+          </div>
+        </div>
+
+        <!-- Prescribed Medicines Action List with Live Countdown Timers & Next Reminders -->
+        <div id="med-cards-container" class="space-y-2"></div>
+
+        <!-- Collapsible: Manage Prescriptions -->
+        <details class="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-2xs transition">
+          <summary class="p-3 cursor-pointer select-none flex items-center justify-between text-xs font-bold text-slate-700 hover:bg-slate-100">
+            <div class="flex items-center gap-1.5">
+              <span>⚙️</span>
+              <span>Update / Change Prescription</span>
+            </div>
+            <span class="chev text-slate-400 transition-transform duration-200 text-xs">▼</span>
+          </summary>
+          <div class="p-3 border-t border-slate-200 bg-white space-y-3 text-xs">
+            <p class="text-[10px] text-slate-500">Prescription altered after consultation? Modify cloud regimen:</p>
+            
+            <form id="add-med-form" class="space-y-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Medicine Name & Strength</label>
+                <input type="text" id="new-med-name" placeholder="e.g. ISTAMET TAB 500MG" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-800" required />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Dosage</label>
+                  <input type="text" id="new-med-dose" placeholder="e.g. 1 Tab" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-800" required />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Time Schedule</label>
+                  <select id="new-med-slot" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-800">
+                    <option value="Morning (Breakfast)">Morning (After Breakfast)</option>
+                    <option value="Noon (Lunch)">Noon (After Lunch)</option>
+                    <option value="Night (Dinner)">Night (After Dinner)</option>
+                    <option value="Weekly (Wednesday)">Weekly (Every Wednesday)</option>
+                    <option value="Anytime">Once Daily (General)</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="w-full py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-bold text-xs shadow-2xs">
+                + Save to Firebase Prescription
+              </button>
+            </form>
+
+            <div class="space-y-1.5">
+              <span class="text-[10px] font-bold text-slate-600 block">Cloud Prescriptions:</span>
+              <div id="rx-manage-list" class="space-y-1"></div>
+            </div>
+          </div>
+        </details>
+
+        <!-- DATEWISE GROUPED MEDICINE INTAKE RECORDS -->
+        <div class="space-y-2 pt-1">
+          <div class="flex justify-between items-center px-1">
+            <span class="text-[11px] font-bold text-slate-600">Medicine History (Grouped by Date)</span>
+            <span class="text-[9px] text-slate-400 font-mono">IST (HH:MM:SS AM/PM)</span>
+          </div>
+          <div id="med-logs-feed" class="space-y-2 max-h-56 overflow-y-auto no-scrollbar"></div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 5: INSIGHTS & ALL CHECKPOINTS GRAPH ==================== -->
       <section id="tab-report" class="tab-view hidden space-y-3">
         
         <!-- Live Stat Cards -->
@@ -220,9 +294,7 @@
           <div id="today-spikes-list" class="space-y-1 text-[11px] text-rose-900 font-medium"></div>
         </div>
 
-        <!-- ===============================================================
-             GLYCEMIC TREND GRAPH: 6 SPECIFIC CHECKPOINT DOT COLORS
-        ================================================================ -->
+        <!-- ALL CHECKPOINTS GRAPH -->
         <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-1.5">
@@ -232,9 +304,7 @@
             <span id="chart-points-count" class="font-mono text-[9px] text-slate-400 font-bold">0 Points</span>
           </div>
 
-          <!-- Color-Coded Checkpoint Legend -->
           <div class="grid grid-cols-2 gap-1.5 text-[8.5px] font-bold p-2 bg-slate-50 rounded-xl border border-slate-200">
-            <!-- Before Food Group -->
             <div class="space-y-0.5">
               <span class="text-slate-400 block text-[8px] uppercase">Before Food:</span>
               <div class="flex flex-wrap gap-1.5 items-center">
@@ -250,7 +320,6 @@
               </div>
             </div>
 
-            <!-- After Food Group -->
             <div class="space-y-0.5 border-l border-slate-200 pl-2">
               <span class="text-slate-400 block text-[8px] uppercase">After Food:</span>
               <div class="flex flex-wrap gap-1.5 items-center">
@@ -267,7 +336,6 @@
             </div>
           </div>
 
-          <!-- Horizontal Scrollable Container -->
           <div class="overflow-x-auto no-scrollbar w-full border border-slate-100 rounded-xl bg-slate-50/40 p-1">
             <div id="chart-scroll-wrapper" class="relative h-48 w-full min-w-[320px]">
               <canvas id="sugarTrendChart"></canvas>
@@ -283,11 +351,11 @@
           </div>
         </div>
 
-        <!-- DATEWISE ARCHIVE SHOWING SPIKES FOR EACH DAY -->
+        <!-- DATEWISE ARCHIVE: STRICTLY TODAY FIRST, YESTERDAY SECOND, ETC. -->
         <div class="space-y-2 pt-1">
           <div class="flex justify-between items-center px-1">
             <span class="text-xs font-black uppercase tracking-wider text-slate-600">📅 Daily Records & Spikes</span>
-            <span class="text-[10px] text-slate-400">Tap date to expand</span>
+            <span class="text-[10px] text-slate-400">Today first, yesterday second</span>
           </div>
           <div id="date-archive-list" class="space-y-2"></div>
         </div>
@@ -295,23 +363,27 @@
 
     </main>
 
-    <!-- Bottom Mobile App Navigation -->
-    <nav class="fixed bottom-0 w-full max-w-md bg-white/95 backdrop-blur-lg border-t border-slate-200 px-3 py-2 flex justify-around items-center z-50 shadow-md">
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 w-full max-w-md bg-white/95 backdrop-blur-lg border-t border-slate-200 px-1.5 py-2 flex justify-around items-center z-50 shadow-md">
       <button onclick="nav('sugar')" id="nav-sugar" class="nav-btn flex flex-col items-center gap-0.5 text-indigo-600 font-bold transition">
-        <span class="text-lg">🩸</span>
-        <span class="text-[10px]">Sugar</span>
+        <span class="text-base">🩸</span>
+        <span class="text-[9px]">Sugar</span>
       </button>
       <button onclick="nav('water')" id="nav-water" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 font-medium transition">
-        <span class="text-lg">💧</span>
-        <span class="text-[10px]">Water</span>
+        <span class="text-base">💧</span>
+        <span class="text-[9px]">Water</span>
       </button>
       <button onclick="nav('food')" id="nav-food" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 font-medium transition">
-        <span class="text-lg">🥗</span>
-        <span class="text-[10px]">Diet</span>
+        <span class="text-base">🥗</span>
+        <span class="text-[9px]">Diet</span>
+      </button>
+      <button onclick="nav('meds')" id="nav-meds" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 font-medium transition">
+        <span class="text-base">💊</span>
+        <span class="text-[9px]">Meds</span>
       </button>
       <button onclick="nav('report')" id="nav-report" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 font-medium transition">
-        <span class="text-lg">📊</span>
-        <span class="text-[10px]">Insights</span>
+        <span class="text-base">📊</span>
+        <span class="text-[9px]">Insights</span>
       </button>
     </nav>
 
@@ -319,7 +391,7 @@
 
   <script>
     /* ====================================================================
-       1. FIREBASE CONFIGURATION
+       1. FIREBASE CONFIGURATION (CLOUD DATABASE: my-doctor-b360a)
     ==================================================================== */
     const firebaseConfig = {
       apiKey: "AIzaSyB-11zqsKFC-FupM2rA04o27h0kuBhINmc",
@@ -334,37 +406,53 @@
     let isFirebaseActive = false;
     let sugarChartInstance = null;
 
-    function initFirebase() {
-      const isConfigured = firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("YOUR_API_KEY");
-      if (isConfigured) {
-        try {
+    localStorage.clear();
+    console.log("🧹 Direct Firestore cloud mode active.");
+
+    async function initFirebase() {
+      try {
+        if (!firebase.apps.length) {
           firebase.initializeApp(firebaseConfig);
-          db = firebase.firestore();
-          db.collection("_ping").limit(1).get().then(() => {
-            isFirebaseActive = true;
-            document.getElementById("conn-pill").className = "flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-300";
-            document.getElementById("conn-pill").innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>Cloud</span>`;
-            fetchAllData();
-          }).catch(() => setLocalMode());
-        } catch(e) { setLocalMode(); }
-      } else { setLocalMode(); }
+        }
+        db = firebase.firestore();
+        
+        await db.collection("_ping").limit(1).get();
+        isFirebaseActive = true;
+
+        const pill = document.getElementById("conn-pill");
+        pill.className = "flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-300";
+        pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>Cloud</span>`;
+
+        // Real-time listener for medicine logs so console edits reflect immediately
+        db.collection("medicine_logs").onSnapshot(() => {
+          renderMedicineTab();
+        }, (err) => console.warn("Real-time listener warning:", err));
+
+        await fetchAllData();
+      } catch (err) {
+        console.error("Firebase connection error:", err);
+        const pill = document.getElementById("conn-pill");
+        pill.className = "flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-300";
+        pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span><span>Error</span>`;
+      }
     }
 
-    function setLocalMode() {
-      isFirebaseActive = false;
-      const pill = document.getElementById("conn-pill");
-      pill.className = "flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-300";
-      pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span><span>Offline</span>`;
-      fetchAllData();
+    async function clearLocalAndSyncCloud() {
+      localStorage.clear();
+      if (!isFirebaseActive) {
+        await initFirebase();
+      } else {
+        await fetchAllData();
+      }
+      alert("✅ Data freshly pulled from Firebase Cloud Firestore!");
     }
 
     /* ====================================================================
-       2. RESTRUCTURED INDIAN STANDARD TIME (IST: UTC + 5:30) ENGINE
-          Format: DD/MM/YYYY and HH:MM:SS AM/PM
+       2. RESTRUCTURED ROBUST DATE & TIME PARSER (HONORS FIRESTORE EDITS)
     ==================================================================== */
     function getIST(dateInput = new Date()) {
       let d = dateInput;
-      if (typeof dateInput === 'number' || typeof dateInput === 'string') {
+      if (typeof dateInput === 'number') {
         d = new Date(dateInput);
       }
       if (isNaN(d.getTime())) {
@@ -382,7 +470,7 @@
       let hours = istDate.getHours();
       const ampm = hours >= 12 ? 'PM' : 'AM';
       hours = hours % 12;
-      hours = hours ? hours : 12; // 12-hour format
+      hours = hours ? hours : 12;
 
       const hh = String(hours).padStart(2, '0');
       const mm = String(istDate.getMinutes()).padStart(2, '0');
@@ -392,15 +480,88 @@
       const dateKey = `${day}/${month}/${year}`;
       const full = `${dateKey} ${timeOnly}`;
 
+      const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const dayName = daysOfWeek[istDate.getDay()];
+
       return {
-        dateKey: dateKey,
-        timeOnly: timeOnly,
-        full: full,
-        rawDate: d.getTime()
+        dateKey,
+        timeOnly,
+        full,
+        dayName,
+        rawDate: d.getTime(),
+        istDate
       };
     }
 
-    // Live Header Clock
+    // Universal Smart Parser: Reads manual string edits or Timestamp types from Firebase Console
+    function parseEntryDateTime(entry) {
+      if (!entry) return getIST();
+
+      if (entry.timestamp && typeof entry.timestamp.toDate === 'function') {
+        return getIST(entry.timestamp.toDate());
+      }
+      if (entry.rawDate && typeof entry.rawDate.toDate === 'function') {
+        return getIST(entry.rawDate.toDate());
+      }
+
+      if (typeof entry.timestamp === 'string' && entry.timestamp.trim().length > 0) {
+        const str = entry.timestamp.trim();
+        const parts = str.split(/\s+/);
+        if (parts.length >= 2) {
+          const datePart = parts[0];
+          const timePart = parts.slice(1).join(" ");
+          return {
+            dateKey: entry.dateKey || datePart,
+            timeOnly: entry.timeStr || timePart,
+            full: str,
+            rawDate: entry.rawDate || Date.now()
+          };
+        }
+      }
+
+      if (entry.dateKey && entry.timeStr) {
+        return {
+          dateKey: entry.dateKey,
+          timeOnly: entry.timeStr,
+          full: `${entry.dateKey} ${entry.timeStr}`,
+          rawDate: entry.rawDate || Date.now()
+        };
+      }
+
+      if (entry.rawDate && !isNaN(entry.rawDate)) {
+        return getIST(entry.rawDate);
+      }
+
+      return getIST();
+    }
+
+    function getISTTimeOnly(entry) {
+      return parseEntryDateTime(entry).timeOnly;
+    }
+
+    function getISTFull(entry) {
+      return parseEntryDateTime(entry).full;
+    }
+
+    function groupLogsByDate(logs) {
+      const groups = {};
+      logs.forEach(item => {
+        const parsed = parseEntryDateTime(item);
+        const date = parsed.dateKey || 'Unknown Date';
+        if (!groups[date]) groups[date] = [];
+        groups[date].push(item);
+      });
+
+      // STRICTLY DESCENDING: Today first, Yesterday second, etc.
+      const sortedDates = Object.keys(groups).sort((a, b) => {
+        const [d1, m1, y1] = a.split('/').map(Number);
+        const [d2, m2, y2] = b.split('/').map(Number);
+        return new Date(y2, m2 - 1, d2).getTime() - new Date(y1, m1 - 1, d1).getTime();
+      });
+
+      return { groups, sortedDates };
+    }
+
     function startISTClock() {
       function update() {
         const ist = getIST(new Date());
@@ -408,43 +569,96 @@
         if (clockEl) {
           clockEl.innerText = `${ist.dateKey} • ${ist.timeOnly}`;
         }
+        updateMedicineCountdownTimers();
       }
       update();
       setInterval(update, 1000);
     }
 
-    // Universal IST Formatter
-    function getISTTimeOnly(entry) {
-      if (!entry) return "--:--:-- --";
-      if (entry.rawDate && !isNaN(entry.rawDate)) {
-        return getIST(entry.rawDate).timeOnly;
-      }
-      if (entry.timeStr && entry.timeStr.includes(":")) {
-        return entry.timeStr;
-      }
-      if (entry.timestamp) {
-        const parts = entry.timestamp.trim().split(" ");
-        if (parts.length >= 3) {
-          return `${parts[1]} ${parts[2]}`;
+    /* ====================================================================
+       3. PURE FIRESTORE DATA PIPELINE
+    ==================================================================== */
+    async function saveItem(collectionName, item) {
+      if (isFirebaseActive && db) {
+        try {
+          await db.collection(collectionName).add(item);
+        } catch (e) {
+          console.error(`Error saving to Firestore collection ${collectionName}:`, e);
+          alert("Firebase write error. Check permissions.");
         }
-        return parts[1] || entry.timestamp;
       }
-      return getIST().timeOnly;
     }
 
-    function getISTFull(entry) {
-      if (!entry) return "--/--/---- --:--:-- --";
-      if (entry.rawDate && !isNaN(entry.rawDate)) {
-        return getIST(entry.rawDate).full;
+    async function loadItems(collectionName) {
+      if (isFirebaseActive && db) {
+        try {
+          const snap = await db.collection(collectionName).limit(350).get();
+          const items = snap.docs.map(doc => ({ ...doc.data(), _id: doc.id }));
+          
+          // Sort accurately by parsed date & time descending (TODAY first, YESTERDAY second)
+          items.sort((a, b) => {
+            const da = parseEntryDateTime(a);
+            const db_ = parseEntryDateTime(b);
+            const [d1, m1, y1] = da.dateKey.split('/').map(Number);
+            const [d2, m2, y2] = db_.dateKey.split('/').map(Number);
+            const t1 = new Date(y1, m1 - 1, d1).getTime();
+            const t2 = new Date(y2, m2 - 1, d2).getTime();
+            if (t1 !== t2) return t2 - t1;
+            return (b.rawDate || 0) - (a.rawDate || 0);
+          });
+
+          return items;
+        } catch (e) {
+          console.error(`Error loading from Firestore ${collectionName}:`, e);
+          return [];
+        }
       }
-      if (entry.timestamp && entry.timestamp.includes("/")) {
-        return entry.timestamp;
+      return [];
+    }
+
+    async function getPrescriptions() {
+      if (isFirebaseActive && db) {
+        try {
+          const snap = await db.collection("doctor_prescriptions").get();
+          if (!snap.empty) {
+            return snap.docs.map(d => ({ ...d.data(), docId: d.id }));
+          }
+          const batch = db.batch();
+          DEFAULT_PRESCRIPTIONS.forEach(p => {
+            const ref = db.collection("doctor_prescriptions").doc();
+            batch.set(ref, p);
+          });
+          await batch.commit();
+          return DEFAULT_PRESCRIPTIONS;
+        } catch (e) {
+          console.error("Error reading prescriptions from Firestore:", e);
+        }
       }
-      return getIST().full;
+      return DEFAULT_PRESCRIPTIONS;
+    }
+
+    async function savePrescriptionsList(list) {
+      if (isFirebaseActive && db) {
+        try {
+          const snap = await db.collection("doctor_prescriptions").get();
+          const batch = db.batch();
+          snap.docs.forEach(doc => batch.delete(doc.ref));
+          await batch.commit();
+
+          const writeBatch = db.batch();
+          list.forEach(item => {
+            const ref = db.collection("doctor_prescriptions").doc();
+            writeBatch.set(ref, item);
+          });
+          await writeBatch.commit();
+        } catch (e) {
+          console.error("Error saving prescriptions to Firestore:", e);
+        }
+      }
     }
 
     /* ====================================================================
-       3. PROTOCOLS & DATA DEFINITIONS
+       4. PROTOCOLS & DEFAULT PRESCRIPTIONS
     ==================================================================== */
     const SUGAR_SLOTS = [
       { id: "s1", name: "Morning Before Food", short: "Fasting", icon: "🌅" },
@@ -473,6 +687,13 @@
       { name: "Dinner", short: "Dinner", icon: "🍽️" }
     ];
 
+    const DEFAULT_PRESCRIPTIONS = [
+      { id: "rx_1", name: "ISTAMET TAB 500MG", dose: "1 Tab", slot: "Morning (Breakfast)", timing: "After Breakfast", freq: "Daily", targetTime: "08:30 AM" },
+      { id: "rx_2", name: "DAPAGLITORIN TAB 10MG", dose: "1 Tab", slot: "Noon (Lunch)", timing: "After Lunch", freq: "Daily", targetTime: "01:30 PM" },
+      { id: "rx_3", name: "ISTAMET TAB 500MG", dose: "1 Tab", slot: "Night (Dinner)", timing: "After Dinner", freq: "Daily", targetTime: "08:30 PM" },
+      { id: "rx_4", name: "VAST IWO D3 60000", dose: "1 Tab", slot: "Weekly (Wednesday)", timing: "Weekly Every Wednesday", freq: "Weekly", targetDay: "Wednesday", targetTime: "10:00 AM" }
+    ];
+
     function evalSugar(val, slot) {
       const n = parseFloat(val);
       const isPre = slot.toLowerCase().includes("before");
@@ -489,32 +710,6 @@
     }
 
     /* ====================================================================
-       4. DATABASE ENGINE
-    ==================================================================== */
-    async function saveItem(col, item) {
-      if (isFirebaseActive && db) {
-        try { await db.collection(col).add(item); }
-        catch (e) { saveLocal(col, item); }
-      } else { saveLocal(col, item); }
-    }
-
-    function saveLocal(col, item) {
-      const arr = JSON.parse(localStorage.getItem(col) || "[]");
-      arr.unshift(item);
-      localStorage.setItem(col, JSON.stringify(arr));
-    }
-
-    async function loadItems(col) {
-      if (isFirebaseActive && db) {
-        try {
-          const snap = await db.collection(col).orderBy("rawDate", "desc").limit(200).get();
-          return snap.docs.map(d => d.data());
-        } catch(e) { return JSON.parse(localStorage.getItem(col) || "[]"); }
-      }
-      return JSON.parse(localStorage.getItem(col) || "[]");
-    }
-
-    /* ====================================================================
        5. NAVIGATION
     ==================================================================== */
     function nav(tabId) {
@@ -526,10 +721,11 @@
       const active = document.getElementById(`nav-${tabId}`);
       active.className = "nav-btn flex flex-col items-center gap-0.5 text-indigo-600 font-bold transition";
       if (tabId === "report") renderReport();
+      if (tabId === "meds") renderMedicineTab();
     }
 
     /* ====================================================================
-       6. SUGAR MODULE (6x LOCK & PREVIOUS FEED)
+       6. SUGAR MODULE (6x LOCK & DATEWISE GROUPED FEED)
     ==================================================================== */
     let selectedSugarSlot = "";
 
@@ -549,7 +745,7 @@
       const ist = getIST();
       const all = await loadItems("sugar_logs");
       if (all.some(s => s.dateKey === ist.dateKey && s.slot === slot)) {
-        alert("🔒 This checkpoint is already locked for today!");
+        alert("🔒 This checkpoint is already locked for today in Firestore!");
         return;
       }
 
@@ -610,26 +806,52 @@
       document.getElementById("sugar-lock-pill").innerText = `${count}/6 Done`;
 
       const feed = document.getElementById("sugar-feed");
-      feed.innerHTML = logs.length === 0 ? `<p class="text-[11px] text-slate-400">No records logged yet.</p>` : "";
-      logs.slice(0, 15).forEach(l => {
-        const div = document.createElement("div");
-        div.className = "p-2 bg-white rounded-xl border border-slate-200 shadow-xs flex items-center justify-between text-xs";
-        div.innerHTML = `
-          <div>
-            <div class="font-bold text-slate-800">${l.slot}</div>
-            <div class="text-[9px] font-mono text-slate-500">${getISTFull(l)}</div>
+      feed.innerHTML = "";
+
+      if (logs.length === 0) {
+        feed.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-2">No records found in Firestore.</p>`;
+        return;
+      }
+
+      const { groups, sortedDates } = groupLogsByDate(logs);
+
+      sortedDates.forEach(dateStr => {
+        const items = groups[dateStr];
+        const isToday = (dateStr === ist.dateKey);
+
+        const groupCard = document.createElement("div");
+        groupCard.className = "bg-slate-50/80 rounded-2xl border border-slate-200 p-2.5 space-y-1.5 shadow-2xs";
+
+        groupCard.innerHTML = `
+          <div class="flex items-center justify-between pb-1 border-b border-slate-200/80">
+            <span class="text-[10px] font-mono font-bold text-slate-700 flex items-center gap-1.5">
+              <span>📅</span>
+              <span>${dateStr}</span>
+              ${isToday ? `<span class="px-1.5 py-0.2 bg-indigo-600 text-white text-[8px] font-black rounded-sm uppercase">Today</span>` : ''}
+            </span>
+            <span class="text-[9px] font-bold text-slate-400 font-mono">${items.length} checks</span>
           </div>
-          <div class="text-right">
-            <span class="font-black text-slate-900">${l.value} mg</span>
-            <div><span class="px-1.5 py-0.2 rounded text-[9px] border font-bold ${l.statusColor}">${l.status}</span></div>
+          <div class="space-y-1">
+            ${items.map(l => `
+              <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs">
+                <div>
+                  <div class="font-bold text-slate-800">${l.slot}</div>
+                  <div class="text-[9px] font-mono text-slate-500">${getISTTimeOnly(l)}</div>
+                </div>
+                <div class="text-right">
+                  <span class="font-black text-slate-900">${l.value} mg</span>
+                  <div><span class="px-1.5 py-0.2 rounded text-[9px] border font-bold ${l.statusColor}">${l.status}</span></div>
+                </div>
+              </div>
+            `).join('')}
           </div>
         `;
-        feed.appendChild(div);
+        feed.appendChild(groupCard);
       });
     }
 
     /* ====================================================================
-       7. WATER MODULE
+       7. WATER MODULE (DATEWISE GROUPED FEED)
     ==================================================================== */
     async function lockWater(id) {
       const def = WATER_SLOTS.find(w => w.id === id);
@@ -637,7 +859,7 @@
       const ist = getIST();
       const all = await loadItems("water_logs");
       if (all.some(w => w.dateKey === ist.dateKey && w.slotId === id)) {
-        alert("🔒 Slot already locked for today!");
+        alert("🔒 Slot already locked for today in Firestore!");
         return;
       }
       await saveItem("water_logs", {
@@ -691,7 +913,7 @@
         if (isLocked) lockedCount++;
 
         const div = document.createElement("div");
-        div.className = `p-2 rounded-xl border flex items-center justify-between transition ${isLocked ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-200 shadow-xs'}`;
+        div.className = `p-2 rounded-xl border flex items-center justify-between transition ${isLocked ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-200 shadow-2xs'}`;
         div.innerHTML = `
           <div class="flex items-center gap-2">
             <span class="text-base">${slot.icon}</span>
@@ -713,23 +935,50 @@
       document.getElementById("water-lock-count").innerText = `${lockedCount}/7 Logged`;
 
       const allFeed = document.getElementById("water-all-feed");
-      allFeed.innerHTML = logs.length === 0 ? `<p class="text-[11px] text-slate-400">No previous water records.</p>` : "";
-      logs.forEach(w => {
-        const item = document.createElement("div");
-        item.className = "p-2 bg-white rounded-xl border border-slate-200 shadow-xs flex items-center justify-between text-xs";
-        item.innerHTML = `
-          <div>
-            <div class="font-bold text-slate-800">💧 ${w.name || 'Water'} (${w.amount} ml)</div>
-            <div class="text-[9px] font-mono text-slate-500">${getISTFull(w)}</div>
+      allFeed.innerHTML = "";
+
+      if (logs.length === 0) {
+        allFeed.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-2">No water records in Firestore.</p>`;
+        return;
+      }
+
+      const { groups, sortedDates } = groupLogsByDate(logs);
+
+      sortedDates.forEach(dateStr => {
+        const items = groups[dateStr];
+        const isToday = (dateStr === ist.dateKey);
+        const dayTotal = items.reduce((acc, curr) => acc + curr.amount, 0);
+
+        const groupCard = document.createElement("div");
+        groupCard.className = "bg-slate-50/80 rounded-2xl border border-slate-200 p-2.5 space-y-1.5 shadow-2xs";
+
+        groupCard.innerHTML = `
+          <div class="flex items-center justify-between pb-1 border-b border-slate-200/80">
+            <span class="text-[10px] font-mono font-bold text-slate-700 flex items-center gap-1.5">
+              <span>📅</span>
+              <span>${dateStr}</span>
+              ${isToday ? `<span class="px-1.5 py-0.2 bg-indigo-600 text-white text-[8px] font-black rounded-sm uppercase">Today</span>` : ''}
+            </span>
+            <span class="text-[9px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-mono">💧 Total: ${dayTotal} ml</span>
           </div>
-          <span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">+${w.amount}ml</span>
+          <div class="space-y-1">
+            ${items.map(w => `
+              <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs">
+                <div>
+                  <div class="font-bold text-slate-800">💧 ${w.name || 'Water'}</div>
+                  <div class="text-[9px] font-mono text-slate-500">${getISTTimeOnly(w)}</div>
+                </div>
+                <span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">+${w.amount}ml</span>
+              </div>
+            `).join('')}
+          </div>
         `;
-        allFeed.appendChild(item);
+        allFeed.appendChild(groupCard);
       });
     }
 
     /* ====================================================================
-       8. FOOD MODULE
+       8. FOOD MODULE (DATEWISE GROUPED FEED)
     ==================================================================== */
     let selectedMealType = "";
 
@@ -757,7 +1006,7 @@
       const ist = getIST();
       const all = await loadItems("food_logs");
       if (all.some(f => f.dateKey === ist.dateKey && f.mealType === meal)) {
-        alert("🔒 This meal is already locked for today!");
+        alert("🔒 This meal is already locked for today in Firestore!");
         return;
       }
 
@@ -817,32 +1066,390 @@
       document.getElementById("food-lock-pill").innerText = `${count}/5 Done`;
 
       const allFeed = document.getElementById("food-all-feed");
-      allFeed.innerHTML = logs.length === 0 ? `<p class="text-[11px] text-slate-400">No previous meal records.</p>` : "";
-      logs.forEach(f => {
-        const div = document.createElement("div");
-        div.className = "p-2 bg-white rounded-xl border border-slate-200 shadow-xs text-xs space-y-0.5";
-        div.innerHTML = `
-          <div class="flex justify-between items-center font-bold">
-            <span class="text-emerald-700 font-bold">${f.mealType}</span>
-            <span class="text-[9px] font-mono text-slate-500">${getISTFull(f)}</span>
+      allFeed.innerHTML = "";
+
+      if (logs.length === 0) {
+        allFeed.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-2">No meal records in Firestore.</p>`;
+        return;
+      }
+
+      const { groups, sortedDates } = groupLogsByDate(logs);
+
+      sortedDates.forEach(dateStr => {
+        const items = groups[dateStr];
+        const isToday = (dateStr === ist.dateKey);
+
+        const groupCard = document.createElement("div");
+        groupCard.className = "bg-slate-50/80 rounded-2xl border border-slate-200 p-2.5 space-y-1.5 shadow-2xs";
+
+        groupCard.innerHTML = `
+          <div class="flex items-center justify-between pb-1 border-b border-slate-200/80">
+            <span class="text-[10px] font-mono font-bold text-slate-700 flex items-center gap-1.5">
+              <span>📅</span>
+              <span>${dateStr}</span>
+              ${isToday ? `<span class="px-1.5 py-0.2 bg-indigo-600 text-white text-[8px] font-black rounded-sm uppercase">Today</span>` : ''}
+            </span>
+            <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-mono">${items.length} meals</span>
           </div>
-          <div class="text-slate-800 font-medium">${f.description}</div>
-          <div class="text-[10px] text-indigo-700 italic">💡 ${f.suggestion}</div>
+          <div class="space-y-1">
+            ${items.map(f => `
+              <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs text-xs space-y-0.5">
+                <div class="flex justify-between items-center font-bold">
+                  <span class="text-emerald-700 font-bold">${f.mealType}</span>
+                  <span class="text-[9px] font-mono text-slate-500">${getISTTimeOnly(f)}</span>
+                </div>
+                <div class="text-slate-800 font-medium">${f.description}</div>
+                <div class="text-[10px] text-indigo-700 italic">💡 ${f.suggestion}</div>
+              </div>
+            `).join('')}
+          </div>
         `;
-        allFeed.appendChild(div);
+        allFeed.appendChild(groupCard);
       });
     }
 
     /* ====================================================================
-       9. TWO-COLORED GRAPH: SPECIFIC CHECKPOINT DOT COLORS
-          After Food:
-            - Morning After Food -> Red (#ef4444)
-            - Noon After Food    -> Yellow (#eab308)
-            - Evening After Food -> Blue (#3b82f6)
-          Before Food:
-            - Morning Before Food -> Orange (#f97316)
-            - Noon Before Food    -> Green (#22c55e)
-            - Evening Before Food -> Purple (#a855f7)
+       9. MEDICINE MODULE (WEDNESDAY-ONLY "TAKE" BUTTON ACTIVATION)
+    ==================================================================== */
+    function getNextDoseSchedule(med, isTakenToday) {
+      const now = new Date();
+      const istOffsetMs = 5.5 * 60 * 60 * 1000;
+      const currentUtcMs = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
+      const currentIstDate = new Date(currentUtcMs + istOffsetMs);
+
+      let targetHour = 9;
+      let targetMin = 0;
+      let slotTimeStr = "09:00 AM";
+
+      if (med.slot.includes("Breakfast") || med.slot.includes("Morning")) {
+        targetHour = 8; targetMin = 30; slotTimeStr = "08:30 AM";
+      } else if (med.slot.includes("Lunch") || med.slot.includes("Noon")) {
+        targetHour = 13; targetMin = 30; slotTimeStr = "01:30 PM";
+      } else if (med.slot.includes("Dinner") || med.slot.includes("Night")) {
+        targetHour = 20; targetMin = 30; slotTimeStr = "08:30 PM";
+      } else if (med.freq === "Weekly" || med.slot.includes("Wednesday")) {
+        targetHour = 10; targetMin = 0; slotTimeStr = "10:00 AM";
+      }
+
+      const isWeekly = (med.freq === "Weekly" || med.slot.includes("Weekly") || med.slot.includes("Wednesday"));
+
+      if (isWeekly) {
+        const currentDay = currentIstDate.getDay(); // 3 = Wednesday
+        let daysUntilWed = (3 - currentDay + 7) % 7;
+        
+        if (currentDay === 3) {
+          daysUntilWed = isTakenToday ? 7 : 0;
+        }
+
+        const targetWedDate = new Date(currentIstDate.getTime() + (daysUntilWed * 24 * 60 * 60 * 1000));
+        targetWedDate.setHours(targetHour, targetMin, 0, 0);
+
+        const diffMs = targetWedDate.getTime() - currentIstDate.getTime();
+        const dd = String(targetWedDate.getDate()).padStart(2, '0');
+        const mm = String(targetWedDate.getMonth() + 1).padStart(2, '0');
+
+        return {
+          isWeekly: true,
+          isTodayWed: (currentDay === 3),
+          targetMs: targetWedDate.getTime(),
+          diffMs: diffMs,
+          dateShort: `${dd}/${mm}`,
+          slotTime: slotTimeStr,
+          dueBadgeText: (daysUntilWed === 0 && !isTakenToday) ? `Due Today (${dd}/${mm}) at ${slotTimeStr}` : `Next: Wed (${dd}/${mm}) at ${slotTimeStr}`
+        };
+      } else {
+        let targetDoseDate = new Date(currentIstDate.getTime());
+        if (isTakenToday) {
+          targetDoseDate = new Date(currentIstDate.getTime() + (24 * 60 * 60 * 1000));
+        }
+        targetDoseDate.setHours(targetHour, targetMin, 0, 0);
+
+        const diffMs = targetDoseDate.getTime() - currentIstDate.getTime();
+        const dd = String(targetDoseDate.getDate()).padStart(2, '0');
+        const mm = String(targetDoseDate.getMonth() + 1).padStart(2, '0');
+
+        return {
+          isWeekly: false,
+          isTodayWed: false,
+          targetMs: targetDoseDate.getTime(),
+          diffMs: diffMs,
+          dateShort: `${dd}/${mm}`,
+          slotTime: slotTimeStr,
+          dueBadgeText: isTakenToday ? `Next: Tomorrow (${dd}/${mm}) at ${slotTimeStr}` : `Due: Today (${dd}/${mm}) at ${slotTimeStr}`
+        };
+      }
+    }
+
+    function formatCountdown(diffMs) {
+      if (diffMs <= 0) {
+        const overdueMin = Math.floor(Math.abs(diffMs) / 60000);
+        if (overdueMin < 60) return `Due now (overdue by ${overdueMin}m)`;
+        const overdueHours = Math.floor(overdueMin / 60);
+        return `Due now (overdue by ${overdueHours}h)`;
+      }
+
+      const totalSeconds = Math.floor(diffMs / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+      if (days > 0) return `${days}d ${hours}h remaining`;
+      if (hours > 0) return `${hours}h ${minutes}m remaining`;
+      return `${minutes}m remaining`;
+    }
+
+    function updateMedicineCountdownTimers() {
+      document.querySelectorAll(".med-live-timer").forEach(timerEl => {
+        const targetMs = parseInt(timerEl.getAttribute("data-target-ms"));
+        if (!targetMs) return;
+
+        const now = new Date();
+        const istOffsetMs = 5.5 * 60 * 60 * 1000;
+        const currentUtcMs = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
+        const currentIstMs = currentUtcMs + istOffsetMs;
+
+        const diffMs = targetMs - currentIstMs;
+        timerEl.innerText = `⏳ ${formatCountdown(diffMs)}`;
+      });
+    }
+
+    async function takeMedicine(rxId) {
+      const rxList = await getPrescriptions();
+      const med = rxList.find(m => m.id === rxId);
+      if (!med) return;
+
+      const ist = getIST();
+      const logs = await loadItems("medicine_logs");
+
+      // Check Wednesday constraint for weekly med
+      if (med.freq === "Weekly" || med.slot.includes("Weekly") || med.slot.includes("Wednesday")) {
+        if (ist.dayName !== "Wednesday") {
+          alert("⚠️ VAST IWO D3 60000 can strictly only be taken on Wednesdays!");
+          return;
+        }
+        const alreadyTakenThisDay = logs.some(l => l.rxId === rxId && parseEntryDateTime(l).dateKey === ist.dateKey);
+        if (alreadyTakenThisDay) {
+          alert(`🔒 ${med.name} is already logged and locked for today in Firestore!`);
+          return;
+        }
+      } else {
+        const alreadyTakenToday = logs.some(l => l.rxId === rxId && parseEntryDateTime(l).dateKey === ist.dateKey);
+        if (alreadyTakenToday) {
+          alert(`🔒 ${med.name} (${med.slot}) is already consumed and locked for today in Firestore!`);
+          return;
+        }
+      }
+
+      await saveItem("medicine_logs", {
+        rxId: med.id,
+        name: med.name,
+        dose: med.dose,
+        slot: med.slot,
+        timing: med.timing,
+        freq: med.freq,
+        timeStr: ist.timeOnly,
+        timestamp: ist.full,
+        dateKey: ist.dateKey,
+        rawDate: ist.rawDate
+      });
+
+      fetchAllData();
+    }
+
+    document.getElementById("add-med-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("new-med-name").value.trim().toUpperCase();
+      const dose = document.getElementById("new-med-dose").value.trim();
+      const slot = document.getElementById("new-med-slot").value;
+
+      const freq = slot.includes("Weekly") ? "Weekly" : "Daily";
+      const newMed = {
+        id: "rx_" + Date.now(),
+        name,
+        dose,
+        slot,
+        timing: slot,
+        freq
+      };
+
+      const list = await getPrescriptions();
+      list.push(newMed);
+      await savePrescriptionsList(list);
+
+      document.getElementById("new-med-name").value = "";
+      document.getElementById("new-med-dose").value = "";
+      alert(`✅ Added ${name} directly to Cloud Firestore.`);
+      renderMedicineTab();
+    });
+
+    async function deletePrescription(rxId) {
+      if (!confirm("Are you sure you want to remove this medicine from your cloud prescription?")) return;
+      let list = await getPrescriptions();
+      list = list.filter(m => m.id !== rxId);
+      await savePrescriptionsList(list);
+      renderMedicineTab();
+    }
+
+    async function renderMedicineTab() {
+      const ist = getIST();
+      const rxList = await getPrescriptions();
+      const logs = await loadItems("medicine_logs");
+      
+      const todayLogs = logs.filter(l => parseEntryDateTime(l).dateKey === ist.dateKey);
+
+      const wedBanner = document.getElementById("wed-d3-banner");
+      if (ist.dayName === "Wednesday") {
+        wedBanner.classList.remove("hidden");
+      } else {
+        wedBanner.classList.add("hidden");
+      }
+
+      const container = document.getElementById("med-cards-container");
+      container.innerHTML = "";
+      let lockedCount = 0;
+
+      rxList.forEach(med => {
+        const isTakenToday = todayLogs.some(l => l.rxId === med.id);
+        if (isTakenToday) lockedCount++;
+        const logEntry = todayLogs.find(l => l.rxId === med.id);
+
+        const schedule = getNextDoseSchedule(med, isTakenToday);
+        const isWeeklyMed = schedule.isWeekly;
+
+        // Status text logic (NEVER shows "Pending today" for weekly med on non-Wednesdays)
+        let statusTextHtml = "";
+        if (isTakenToday) {
+          statusTextHtml = `Taken today at: <strong class="text-slate-700">${getISTTimeOnly(logEntry)}</strong>`;
+        } else if (isWeeklyMed) {
+          if (schedule.isTodayWed) {
+            statusTextHtml = `<span class="text-amber-700 font-bold">🔔 Due today (Wednesday)</span>`;
+          } else {
+            statusTextHtml = `<span class="text-slate-500 font-semibold font-mono">📅 Weekly (Wednesdays only)</span>`;
+          }
+        } else {
+          statusTextHtml = `<span class="text-amber-700 font-bold">Pending today</span>`;
+        }
+
+        // TAKE BUTTON ACTIVATION LOGIC:
+        // Weekly med: Button is active ONLY on Wednesday (the concerned day)!
+        let buttonHtml = "";
+        if (isTakenToday) {
+          buttonHtml = `<span class="px-2.5 py-1.5 bg-slate-100 text-teal-800 text-[10px] font-black rounded-xl border border-slate-200">🔒 Taken</span>`;
+        } else if (isWeeklyMed) {
+          if (schedule.isTodayWed) {
+            // Active on Wednesday!
+            buttonHtml = `<button onclick="takeMedicine('${med.id}')" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 active:scale-95 text-white text-[11px] font-black rounded-xl shadow-md shadow-teal-600/20 animate-pulse">Take</button>`;
+          } else {
+            // Disabled on all other days
+            buttonHtml = `<button disabled class="px-2.5 py-1.5 bg-slate-100 text-slate-400 text-[10px] font-bold rounded-xl border border-slate-200 cursor-not-allowed">🔒 Active on Wed</button>`;
+          }
+        } else {
+          // Regular daily medicine: active
+          buttonHtml = `<button onclick="takeMedicine('${med.id}')" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 active:scale-95 text-white text-[11px] font-black rounded-xl shadow-md shadow-teal-600/20">Take</button>`;
+        }
+
+        let icon = "💊";
+        if (med.slot.includes("Morning")) icon = "🌅";
+        else if (med.slot.includes("Noon")) icon = "☀️";
+        else if (med.slot.includes("Night")) icon = "🌙";
+        else if (isWeeklyMed) icon = "✨";
+
+        const card = document.createElement("div");
+        card.className = `p-3 rounded-2xl border flex flex-col gap-2 transition ${isTakenToday ? 'bg-slate-50 border-slate-200' : 'bg-white border-teal-200 shadow-xs'}`;
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">${icon}</span>
+              <div>
+                <div class="text-xs font-black text-slate-800">${med.name}</div>
+                <div class="text-[10px] text-teal-700 font-bold">${med.dose} • ${med.timing}</div>
+              </div>
+            </div>
+            <div>
+              ${buttonHtml}
+            </div>
+          </div>
+
+          <!-- EXACT REMINDER AND LIVE COUNTDOWN TIMER -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pt-1 border-t border-slate-100 text-[9.5px] gap-1">
+            <div class="font-mono">
+              ${statusTextHtml}
+            </div>
+            <div class="flex items-center gap-1 font-mono font-bold">
+              <span class="px-1.5 py-0.5 rounded ${isTakenToday ? 'bg-blue-50 text-blue-800 border border-blue-200' : 'bg-amber-100 text-amber-900 border border-amber-300'}">
+                ${schedule.dueBadgeText}
+              </span>
+              <span class="med-live-timer px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200" data-target-ms="${schedule.targetMs}">
+                ⏳ ${formatCountdown(schedule.diffMs)}
+              </span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById("med-lock-pill").innerText = `${lockedCount}/${rxList.length} Taken`;
+
+      const rxManageList = document.getElementById("rx-manage-list");
+      rxManageList.innerHTML = "";
+      rxList.forEach(m => {
+        const row = document.createElement("div");
+        row.className = "flex justify-between items-center p-2 bg-slate-50 rounded-lg border border-slate-200 text-xs";
+        row.innerHTML = `
+          <div>
+            <span class="font-bold text-slate-800">${m.name}</span> (${m.dose})
+            <span class="text-[9px] text-slate-500 block">${m.timing}</span>
+          </div>
+          <button onclick="deletePrescription('${m.id}')" class="text-rose-600 hover:text-rose-800 font-bold text-[10px] px-2 py-0.5 bg-rose-50 rounded border border-rose-200">Remove</button>
+        `;
+        rxManageList.appendChild(row);
+      });
+
+      // DATEWISE GROUPED MEDICINE INTAKE FEED (Newest Date First)
+      const medLogsFeed = document.getElementById("med-logs-feed");
+      medLogsFeed.innerHTML = "";
+
+      if (logs.length === 0) {
+        medLogsFeed.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-2">No medicine logged in Firestore.</p>`;
+        return;
+      }
+
+      const { groups, sortedDates } = groupLogsByDate(logs);
+
+      sortedDates.forEach(dateStr => {
+        const items = groups[dateStr];
+        const isToday = (dateStr === ist.dateKey);
+
+        const groupCard = document.createElement("div");
+        groupCard.className = "bg-slate-50/80 rounded-2xl border border-slate-200 p-2.5 space-y-1.5 shadow-2xs";
+
+        groupCard.innerHTML = `
+          <div class="flex items-center justify-between pb-1 border-b border-slate-200/80">
+            <span class="text-[10px] font-mono font-bold text-slate-700 flex items-center gap-1.5">
+              <span>📅</span>
+              <span>${dateStr}</span>
+              ${isToday ? `<span class="px-1.5 py-0.2 bg-indigo-600 text-white text-[8px] font-black rounded-sm uppercase">Today</span>` : ''}
+            </span>
+            <span class="text-[9px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 font-mono">${items.length} doses</span>
+          </div>
+          <div class="space-y-1">
+            ${items.map(item => `
+              <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs">
+                <div>
+                  <div class="font-bold text-slate-800">💊 ${item.name} (${item.dose})</div>
+                  <div class="text-[9px] font-mono text-slate-500">${getISTTimeOnly(item)}</div>
+                </div>
+                <span class="text-[10px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">${item.slot}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        medLogsFeed.appendChild(groupCard);
+      });
+    }
+
+    /* ====================================================================
+       10. TWO-COLORED GLYCEMIC TREND GRAPH
     ==================================================================== */
     function renderSugarTrendChart(sugars) {
       const canvas = document.getElementById("sugarTrendChart");
@@ -862,12 +1469,12 @@
 
       emptyMsg.classList.add("hidden");
 
-      // Sort dates chronologically
-      const uniqueDates = Array.from(new Set(sugars.map(s => s.dateKey))).filter(Boolean);
+      // For line graphs, chronological timeline points from oldest to newest
+      const uniqueDates = Array.from(new Set(sugars.map(s => parseEntryDateTime(s).dateKey))).filter(Boolean);
       uniqueDates.sort((a, b) => {
         const [d1, m1, y1] = a.split('/').map(Number);
         const [d2, m2, y2] = b.split('/').map(Number);
-        return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
+        return new Date(y1, m1 - 1, d1).getTime() - new Date(y2, m2 - 1, d2).getTime();
       });
 
       const labels = [];
@@ -879,63 +1486,45 @@
       let totalPointsCount = 0;
 
       uniqueDates.forEach(dateStr => {
-        const daySugars = sugars.filter(s => s.dateKey === dateStr);
-        const shortDate = dateStr.slice(0, 5); // DD/MM
+        const daySugars = sugars.filter(s => parseEntryDateTime(s).dateKey === dateStr);
+        const shortDate = dateStr.slice(0, 5);
 
-        // 1. Morning Checkpoint Pair
-        // Before Food = Orange (#f97316) | After Food = Red (#ef4444)
+        // Morning
         const mornPre = daySugars.find(s => s.slot === "Morning Before Food");
         const mornPost = daySugars.find(s => s.slot === "Morning After Food");
         if (mornPre || mornPost) {
           labels.push(`${shortDate} 🌅`);
           beforeFoodData.push(mornPre ? mornPre.value : null);
           afterFoodData.push(mornPost ? mornPost.value : null);
-          beforePointColors.push("#f97316"); // Orange
-          afterPointColors.push("#ef4444");  // Red
-          metaInfo.push({ 
-            shortDate: shortDate, 
-            slotName: "Morn", 
-            preVal: mornPre ? mornPre.value : null, 
-            postVal: mornPost ? mornPost.value : null 
-          });
+          beforePointColors.push("#f97316");
+          afterPointColors.push("#ef4444");
+          metaInfo.push({ shortDate, slotName: "Morn", preVal: mornPre?.value, postVal: mornPost?.value });
           totalPointsCount += (mornPre ? 1 : 0) + (mornPost ? 1 : 0);
         }
 
-        // 2. Noon Checkpoint Pair
-        // Before Food = Green (#22c55e) | After Food = Yellow (#eab308)
+        // Noon
         const noonPre = daySugars.find(s => s.slot === "Noon Before Food");
         const noonPost = daySugars.find(s => s.slot === "Noon After Food");
         if (noonPre || noonPost) {
           labels.push(`${shortDate} ☀️`);
           beforeFoodData.push(noonPre ? noonPre.value : null);
           afterFoodData.push(noonPost ? noonPost.value : null);
-          beforePointColors.push("#22c55e"); // Green
-          afterPointColors.push("#eab308");  // Yellow
-          metaInfo.push({ 
-            shortDate: shortDate, 
-            slotName: "Noon", 
-            preVal: noonPre ? noonPre.value : null, 
-            postVal: noonPost ? noonPost.value : null 
-          });
+          beforePointColors.push("#22c55e");
+          afterPointColors.push("#eab308");
+          metaInfo.push({ shortDate, slotName: "Noon", preVal: noonPre?.value, postVal: noonPost?.value });
           totalPointsCount += (noonPre ? 1 : 0) + (noonPost ? 1 : 0);
         }
 
-        // 3. Evening Checkpoint Pair
-        // Before Food = Purple (#a855f7) | After Food = Blue (#3b82f6)
+        // Evening
         const evePre = daySugars.find(s => s.slot === "Evening/Night Before Food");
         const evePost = daySugars.find(s => s.slot === "Evening/Night After Food");
         if (evePre || evePost) {
           labels.push(`${shortDate} 🌙`);
           beforeFoodData.push(evePre ? evePre.value : null);
           afterFoodData.push(evePost ? evePost.value : null);
-          beforePointColors.push("#a855f7"); // Purple (Violet)
-          afterPointColors.push("#3b82f6");  // Blue
-          metaInfo.push({ 
-            shortDate: shortDate, 
-            slotName: "Eve", 
-            preVal: evePre ? evePre.value : null, 
-            postVal: evePost ? evePost.value : null 
-          });
+          beforePointColors.push("#a855f7");
+          afterPointColors.push("#3b82f6");
+          metaInfo.push({ shortDate, slotName: "Eve", preVal: evePre?.value, postVal: evePost?.value });
           totalPointsCount += (evePre ? 1 : 0) + (evePost ? 1 : 0);
         }
       });
@@ -945,26 +1534,23 @@
       const minCalculatedWidth = Math.max(340, labels.length * 48);
       scrollWrapper.style.minWidth = minCalculatedWidth + "px";
 
-      if (sugarChartInstance) {
-        sugarChartInstance.destroy();
-      }
+      if (sugarChartInstance) sugarChartInstance.destroy();
 
       const ctx = canvas.getContext("2d");
-
       sugarChartInstance = new Chart(ctx, {
         type: "line",
         data: {
-          labels: labels,
+          labels,
           datasets: [
             {
               label: "Before Food",
               data: beforeFoodData,
-              borderColor: "rgba(16, 185, 129, 0.4)", // connecting guide line
+              borderColor: "rgba(16, 185, 129, 0.4)",
               backgroundColor: "transparent",
               borderWidth: 2,
-              borderDash: [3, 3], // dashed line to distinguish pre-meal
+              borderDash: [3, 3],
               tension: 0.25,
-              pointBackgroundColor: beforePointColors, // Orange, Green, Purple
+              pointBackgroundColor: beforePointColors,
               pointBorderColor: "#ffffff",
               pointBorderWidth: 2,
               pointRadius: 6,
@@ -974,11 +1560,11 @@
             {
               label: "After Food",
               data: afterFoodData,
-              borderColor: "rgba(244, 63, 94, 0.4)", // connecting guide line
+              borderColor: "rgba(244, 63, 94, 0.4)",
               backgroundColor: "transparent",
               borderWidth: 2,
               tension: 0.25,
-              pointBackgroundColor: afterPointColors, // Red, Yellow, Blue
+              pointBackgroundColor: afterPointColors,
               pointBorderColor: "#ffffff",
               pointBorderWidth: 2,
               pointRadius: 6,
@@ -990,10 +1576,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          interaction: {
-            mode: "nearest",
-            intersect: true
-          },
+          interaction: { mode: "nearest", intersect: true },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -1003,61 +1586,39 @@
               displayColors: true,
               boxWidth: 8,
               boxHeight: 8,
-              titleColor: "#94a3b8", // SHORT AND SMALL DATE & CHECKPOINT
+              titleColor: "#94a3b8",
               titleFont: { size: 9, weight: "bold" },
               bodyColor: "#ffffff",
-              bodyFont: { size: 16, weight: "900" }, // EXACT VALUE IN MG/DL AS BIG
+              bodyFont: { size: 16, weight: "900" },
               callbacks: {
                 title: function(items) {
                   const idx = items[0].dataIndex;
                   const datasetIdx = items[0].datasetIndex;
                   const m = metaInfo[idx];
-                  const checkpointType = datasetIdx === 0 ? "Pre-Food" : "Post-Food";
-                  // SHORT AND SMALL
-                  return `${m.shortDate} • ${m.slotName} (${checkpointType})`;
+                  const type = datasetIdx === 0 ? "Pre-Food" : "Post-Food";
+                  return `${m.shortDate} • ${m.slotName} (${type})`;
                 },
                 label: function(context) {
                   const val = context.parsed.y;
                   if (val === null || val === undefined) return "";
-                  // EXACT VALUE IN MG/DL AS BIG
                   return ` ${val} mg/dL`;
                 }
               }
             }
           },
           scales: {
-            x: {
-              grid: { display: false },
-              ticks: {
-                color: "#64748b",
-                font: { size: 9, weight: "bold" }
-              }
-            },
-            y: {
-              min: 40,
-              suggestedMax: 220,
-              grid: {
-                color: "rgba(226, 232, 240, 0.7)",
-                drawBorder: false
-              },
-              ticks: {
-                color: "#64748b",
-                font: { size: 9 },
-                stepSize: 40
-              }
-            }
+            x: { grid: { display: false }, ticks: { color: "#64748b", font: { size: 9, weight: "bold" } } },
+            y: { min: 40, suggestedMax: 220, grid: { color: "rgba(226, 232, 240, 0.7)", drawBorder: false }, ticks: { color: "#64748b", font: { size: 9 }, stepSize: 40 } }
           }
         }
       });
 
       const container = scrollWrapper.parentElement;
-      if (container) {
-        container.scrollLeft = container.scrollWidth;
-      }
+      if (container) container.scrollLeft = container.scrollWidth;
     }
 
     /* ====================================================================
-       10. INSIGHTS TAB (STATS, ALL CHECKPOINTS GRAPH & DAILY SPIKES)
+       11. INSIGHTS TAB (STRICTLY TODAY FIRST, YESTERDAY SECOND)
     ==================================================================== */
     async function renderReport() {
       const ist = getIST();
@@ -1065,10 +1626,9 @@
       const waters = await loadItems("water_logs");
       const foods = await loadItems("food_logs");
 
-      const todaySugars = sugars.filter(s => s.dateKey === ist.dateKey);
-      const todayWaters = waters.filter(w => w.dateKey === ist.dateKey);
+      const todaySugars = sugars.filter(s => parseEntryDateTime(s).dateKey === ist.dateKey);
+      const todayWaters = waters.filter(w => parseEntryDateTime(w).dateKey === ist.dateKey);
 
-      // Top Stat Tiles
       if (todaySugars.length > 0) {
         const avg = Math.round(todaySugars.reduce((a, c) => a + c.value, 0) / todaySugars.length);
         document.getElementById("rep-avg").innerText = `${avg}`;
@@ -1081,7 +1641,6 @@
       const waterSum = todayWaters.reduce((a, c) => a + c.amount, 0);
       document.getElementById("rep-water").innerText = `${(waterSum/1000).toFixed(1)}L`;
 
-      // Today's Spikes
       const todaySpikes = todaySugars.filter(s => {
         const isPre = s.slot.toLowerCase().includes("before");
         return isPre ? (s.value >= 100) : (s.value >= 140);
@@ -1107,25 +1666,40 @@
         spikeCard.classList.add("hidden");
       }
 
-      // Render Graph with 6 Dot Colors & Big Tooltip values
       renderSugarTrendChart(sugars);
 
-      // Datewise Archive
+      // DATEWISE ARCHIVE: STRICTLY DESCENDING (TODAY FIRST, YESTERDAY SECOND, ETC.)
       const archive = document.getElementById("date-archive-list");
       archive.innerHTML = "";
 
-      const dates = Array.from(new Set([ist.dateKey, ...sugars.map(s=>s.dateKey), ...waters.map(w=>w.dateKey), ...foods.map(f=>f.dateKey)])).filter(Boolean);
+      // Calculate Yesterday's date key in IST
+      const yesterdayDate = new Date(ist.istDate.getTime() - (24 * 60 * 60 * 1000));
+      const yDay = String(yesterdayDate.getDate()).padStart(2, '0');
+      const yMonth = String(yesterdayDate.getMonth() + 1).padStart(2, '0');
+      const yYear = yesterdayDate.getFullYear();
+      const yesterdayKey = `${yDay}/${yMonth}/${yYear}`;
+
+      const dates = Array.from(new Set([
+        ist.dateKey, 
+        ...sugars.map(s => parseEntryDateTime(s).dateKey), 
+        ...waters.map(w => parseEntryDateTime(w).dateKey), 
+        ...foods.map(f => parseEntryDateTime(f).dateKey)
+      ])).filter(Boolean);
+
+      // STRICTLY NEWEST FIRST: Today first, Yesterday second, etc.
       dates.sort((a,b) => {
         const [d1,m1,y1] = a.split('/').map(Number);
         const [d2,m2,y2] = b.split('/').map(Number);
-        return new Date(y1,m1-1,d1) - new Date(y2,m2-1,d2);
+        return new Date(y2, m2 - 1, d2).getTime() - new Date(y1, m1 - 1, d1).getTime();
       });
 
       dates.forEach(d => {
-        const dSugars = sugars.filter(s => s.dateKey === d);
-        const dWaters = waters.filter(w => w.dateKey === d);
-        const dFoods = foods.filter(f => f.dateKey === d);
+        const dSugars = sugars.filter(s => parseEntryDateTime(s).dateKey === d);
+        const dWaters = waters.filter(w => parseEntryDateTime(w).dateKey === d);
+        const dFoods = foods.filter(f => parseEntryDateTime(f).dateKey === d);
+        
         const isToday = (d === ist.dateKey);
+        const isYesterday = (d === yesterdayKey);
 
         let dAvg = "--";
         if (dSugars.length > 0) dAvg = Math.round(dSugars.reduce((a,c)=>a+c.value,0)/dSugars.length);
@@ -1137,15 +1711,22 @@
         });
 
         const details = document.createElement("details");
-        details.className = "group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs transition";
+        details.className = "group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs transition";
+
+        // Relative Tag (Today vs Yesterday)
+        let relativePill = '';
+        if (isToday) {
+          relativePill = `<span class="px-1.5 py-0.2 bg-indigo-600 text-white text-[9px] font-black rounded uppercase">Today</span>`;
+        } else if (isYesterday) {
+          relativePill = `<span class="px-1.5 py-0.2 bg-amber-600 text-white text-[9px] font-black rounded uppercase">Yesterday</span>`;
+        }
 
         details.innerHTML = `
-          <!-- Header (DEFAULT COLLAPSED) -->
           <summary class="p-3 cursor-pointer select-none flex items-center justify-between bg-slate-50 hover:bg-slate-100 transition">
             <div class="flex items-center gap-2">
               <span class="chev text-slate-400 transition-transform duration-200 text-xs">▼</span>
               <span class="font-mono font-bold text-xs text-slate-800">${d}</span>
-              ${isToday ? `<span class="px-1.5 py-0.2 bg-indigo-600 text-white text-[9px] font-black rounded">Today</span>` : ''}
+              ${relativePill}
             </div>
             <div class="flex items-center gap-1 text-[10px] font-bold">
               <span class="text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">🩸${dAvg}</span>
@@ -1155,11 +1736,7 @@
               </span>
             </div>
           </summary>
-
-          <!-- Collapsible Body -->
           <div class="p-3 border-t border-slate-200 bg-white space-y-2.5 text-xs">
-            
-            <!-- WHEN SUGAR SPIKED ON THIS DAY IN IST -->
             <div class="p-2 rounded-xl bg-rose-50 border border-rose-200 space-y-1">
               <div class="text-[10px] font-bold uppercase text-rose-800 flex items-center gap-1">
                 <span>🚨</span> Sugar Spikes Breakdown on ${d} (IST):
@@ -1174,8 +1751,6 @@
                 </div>
               `).join('') : '<p class="text-[10px] text-emerald-800 font-medium">✅ Stable glucose control. Zero spikes occurred on this date.</p>'}
             </div>
-
-            <!-- Sugar Checks -->
             <div>
               <span class="text-[10px] font-bold uppercase text-slate-500">🩸 Sugar Checkpoints (${dSugars.length}/6)</span>
               <div class="grid grid-cols-2 gap-1.5 mt-1">
@@ -1190,8 +1765,6 @@
                 `).join('') || '<span class="text-[10px] text-slate-400">None</span>'}
               </div>
             </div>
-
-            <!-- Meals Logged -->
             <div>
               <span class="text-[10px] font-bold uppercase text-slate-500">🥗 Meals Consumed (${dFoods.length})</span>
               <div class="space-y-1 mt-1">
@@ -1206,18 +1779,18 @@
                 `).join('') || '<span class="text-[10px] text-slate-400">None</span>'}
               </div>
             </div>
-
           </div>
         `;
         archive.appendChild(details);
       });
     }
 
-    function fetchAllData() {
-      renderSugarChips();
-      renderWater();
-      renderMealChips();
-      renderReport();
+    async function fetchAllData() {
+      await renderSugarChips();
+      await renderWater();
+      await renderMealChips();
+      await renderMedicineTab();
+      await renderReport();
     }
 
     window.addEventListener("DOMContentLoaded", () => {
