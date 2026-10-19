@@ -3,17 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>GlycoFit Health Portal</title>
-
-  <!-- ==================== PWA META TAGS ==================== -->
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#ffffff" />
-  <!-- iOS / iPadOS PWA Support -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="GlycoFit" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
-
+  <title>GlycoFit Mobile - IST Edition</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -21,7 +11,6 @@
   <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
   <style>
     body { -webkit-tap-highlight-color: transparent; }
     details summary::-webkit-details-marker { display: none; }
@@ -79,7 +68,6 @@
       
       <!-- PWA Install, Cloud Sync & Status -->
       <div class="flex items-center gap-1.5">
-        <!-- Install PWA Button (Visible when browser triggers install or for iOS instructions) -->
         <button id="pwa-install-btn" onclick="triggerPWAInstall()" 
                 class="px-2 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-[10px] font-bold flex items-center gap-1 active:scale-95 shadow-2xs">
           <span>📲</span>
@@ -97,7 +85,7 @@
       </div>
     </header>
 
-    <!-- iOS "Add to Home Screen" Instruction Banner (Auto-detects iPhone / iPad) -->
+    <!-- iOS "Add to Home Screen" Instruction Banner -->
     <div id="ios-install-banner" class="hidden mx-3 mt-2 p-2.5 bg-indigo-50 border border-indigo-200 rounded-2xl flex items-center justify-between text-xs text-indigo-900 shadow-2xs">
       <div class="flex items-center gap-2">
         <span class="text-lg">📲</span>
@@ -237,14 +225,14 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 4: MEDICINE (PRESCRIPTION & EXACT REMINDERS) ==================== -->
+      <!-- ==================== TAB 4: MEDICINE (NO DUPLICATES, REMINDERS & TIMER) ==================== -->
       <section id="tab-meds" class="tab-view hidden space-y-3">
         <div class="flex items-center justify-between px-1">
           <div>
             <span class="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
               <span>💊</span> Prescribed Medicines
             </span>
-            <span class="text-[9px] text-teal-700 font-semibold">Dr. Seethal Regimen</span>
+            <span class="text-[9px] text-teal-700 font-semibold">Dr. Seethal Regimen (Deduplicated)</span>
           </div>
           <span id="med-lock-pill" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
             0/4 Taken
@@ -259,7 +247,7 @@
           </div>
         </div>
 
-        <!-- Prescribed Medicines Action List with Live Countdown Timers & Next Reminders -->
+        <!-- Prescribed Medicines Action List (Strictly Single Entry Per Slot) -->
         <div id="med-cards-container" class="space-y-2"></div>
 
         <!-- Collapsible: Manage Prescriptions -->
@@ -301,7 +289,7 @@
             </form>
 
             <div class="space-y-1.5">
-              <span class="text-[10px] font-bold text-slate-600 block">Cloud Prescriptions:</span>
+              <span class="text-[10px] font-bold text-slate-600 block">Active Cloud Prescriptions:</span>
               <div id="rx-manage-list" class="space-y-1"></div>
             </div>
           </div>
@@ -475,7 +463,7 @@
     localStorage.clear();
 
     /* ====================================================================
-       2. PWA INSTALLATION LOGIC (ANDROID, TABLETS & IOS)
+       2. PWA INSTALLATION LOGIC
     ==================================================================== */
     let deferredPrompt = null;
 
@@ -487,7 +475,6 @@
     });
 
     function triggerPWAInstall() {
-      // If browser supports install prompt (Android / Chrome / Edge)
       if (deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
@@ -497,7 +484,6 @@
           deferredPrompt = null;
         });
       } else {
-        // Fallback for iOS / Safari / Tablets where install prompt isn't supported programmatically
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         if (isIOS) {
           document.getElementById("ios-install-banner").classList.remove("hidden");
@@ -507,16 +493,14 @@
       }
     }
 
-    // Register Service Worker for PWA
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("./sw.js")
           .then((reg) => console.log("PWA Service Worker registered:", reg.scope))
-          .catch((err) => console.log("Service Worker registration notice:", err));
+          .catch((err) => console.log("Service Worker notice:", err));
       });
     }
 
-    // Auto-detect iOS to show home screen banner
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
     if (isIOSDevice && !isStandalone) {
@@ -793,25 +777,59 @@
       return [];
     }
 
+    /* ====================================================================
+       7. DEDUPLICATED CLOUD PRESCRIPTION REPOSITORY (FIXES REPEATING MEDS)
+    ==================================================================== */
+    const DEFAULT_PRESCRIPTIONS = [
+      { id: "rx_morn_istamet", name: "ISTAMET TAB 500MG", dose: "1 Tab", slot: "Morning (Breakfast)", timing: "After Breakfast", freq: "Daily", targetTime: "08:30 AM" },
+      { id: "rx_noon_dapag", name: "DAPAGLITORIN TAB 10MG", dose: "1 Tab", slot: "Noon (Lunch)", timing: "After Lunch", freq: "Daily", targetTime: "01:30 PM" },
+      { id: "rx_night_istamet", name: "ISTAMET TAB 500MG", dose: "1 Tab", slot: "Night (Dinner)", timing: "After Dinner", freq: "Daily", targetTime: "08:30 PM" },
+      { id: "rx_wed_d3", name: "VAST IWO D3 60000", dose: "1 Tab", slot: "Weekly (Wednesday)", timing: "Weekly Every Wednesday", freq: "Weekly", targetDay: "Wednesday", targetTime: "10:00 AM" }
+    ];
+
     async function getPrescriptions() {
-      if (isFirebaseActive && db) {
-        try {
-          const snap = await db.collection("doctor_prescriptions").get();
-          if (!snap.empty) {
-            return snap.docs.map(d => ({ ...d.data(), docId: d.id }));
-          }
+      if (!isFirebaseActive || !db) return DEFAULT_PRESCRIPTIONS;
+
+      try {
+        const snap = await db.collection("doctor_prescriptions").get();
+        if (snap.empty) {
+          // Seed using deterministic IDs to permanently avoid duplicates
           const batch = db.batch();
           DEFAULT_PRESCRIPTIONS.forEach(p => {
-            const ref = db.collection("doctor_prescriptions").doc();
-            batch.set(ref, p);
+            const docRef = db.collection("doctor_prescriptions").doc(p.id);
+            batch.set(docRef, p);
           });
           await batch.commit();
           return DEFAULT_PRESCRIPTIONS;
-        } catch (e) {
-          console.error("Error reading prescriptions from Firestore:", e);
         }
+
+        // Deduplicate in memory and identify duplicates in Firestore
+        const uniqueMap = new Map();
+        const duplicateDocRefs = [];
+
+        snap.docs.forEach(doc => {
+          const data = doc.data();
+          const uniqueKey = (data.name || "").trim().toUpperCase() + "___" + (data.slot || "").trim().toLowerCase();
+
+          if (!uniqueMap.has(uniqueKey)) {
+            uniqueMap.set(uniqueKey, { ...data, docId: doc.id });
+          } else {
+            duplicateDocRefs.push(doc.ref);
+          }
+        });
+
+        // Automatically purge accumulated duplicate documents from Cloud Firestore
+        if (duplicateDocRefs.length > 0) {
+          const deleteBatch = db.batch();
+          duplicateDocRefs.forEach(ref => deleteBatch.delete(ref));
+          await deleteBatch.commit();
+        }
+
+        return Array.from(uniqueMap.values());
+      } catch (e) {
+        console.error("Error reading/deduplicating prescriptions from Firestore:", e);
+        return DEFAULT_PRESCRIPTIONS;
       }
-      return DEFAULT_PRESCRIPTIONS;
     }
 
     async function savePrescriptionsList(list) {
@@ -824,8 +842,9 @@
 
           const writeBatch = db.batch();
           list.forEach(item => {
-            const ref = db.collection("doctor_prescriptions").doc();
-            writeBatch.set(ref, item);
+            const docId = item.id || ("rx_" + Date.now() + Math.random().toString(36).substring(2, 6));
+            const ref = db.collection("doctor_prescriptions").doc(docId);
+            writeBatch.set(ref, { ...item, id: docId });
           });
           await writeBatch.commit();
         } catch (e) {
@@ -835,7 +854,7 @@
     }
 
     /* ====================================================================
-       7. PROTOCOLS & DEFAULT PRESCRIPTIONS
+       8. PROTOCOLS & EVALUATIONS
     ==================================================================== */
     const SUGAR_SLOTS = [
       { id: "s1", name: "Morning Before Food", short: "Fasting", icon: "🌅" },
@@ -864,13 +883,6 @@
       { name: "Dinner", short: "Dinner", icon: "🍽️" }
     ];
 
-    const DEFAULT_PRESCRIPTIONS = [
-      { id: "rx_1", name: "ISTAMET TAB 500MG", dose: "1 Tab", slot: "Morning (Breakfast)", timing: "After Breakfast", freq: "Daily", targetTime: "08:30 AM" },
-      { id: "rx_2", name: "DAPAGLITORIN TAB 10MG", dose: "1 Tab", slot: "Noon (Lunch)", timing: "After Lunch", freq: "Daily", targetTime: "01:30 PM" },
-      { id: "rx_3", name: "ISTAMET TAB 500MG", dose: "1 Tab", slot: "Night (Dinner)", timing: "After Dinner", freq: "Daily", targetTime: "08:30 PM" },
-      { id: "rx_4", name: "VAST IWO D3 60000", dose: "1 Tab", slot: "Weekly (Wednesday)", timing: "Weekly Every Wednesday", freq: "Weekly", targetDay: "Wednesday", targetTime: "10:00 AM" }
-    ];
-
     function evalSugar(val, slot) {
       const n = parseFloat(val);
       const isPre = slot.toLowerCase().includes("before");
@@ -887,7 +899,7 @@
     }
 
     /* ====================================================================
-       8. NAVIGATION
+       9. NAVIGATION
     ==================================================================== */
     function nav(tabId) {
       document.querySelectorAll(".tab-view").forEach(el => el.classList.add("hidden"));
@@ -902,7 +914,7 @@
     }
 
     /* ====================================================================
-       9. SUGAR MODULE (6x LOCK & DATEWISE GROUPED FEED: AUTO HEIGHT)
+       10. SUGAR MODULE
     ==================================================================== */
     let selectedSugarSlot = "";
 
@@ -1032,7 +1044,7 @@
     }
 
     /* ====================================================================
-       10. WATER MODULE (DATEWISE GROUPED FEED: AUTO HEIGHT)
+       11. WATER MODULE
     ==================================================================== */
     async function lockWater(id) {
       const def = WATER_SLOTS.find(w => w.id === id);
@@ -1161,7 +1173,7 @@
     }
 
     /* ====================================================================
-       11. FOOD MODULE (DATEWISE GROUPED FEED: AUTO HEIGHT)
+       12. FOOD MODULE
     ==================================================================== */
     let selectedMealType = "";
 
@@ -1296,7 +1308,7 @@
     }
 
     /* ====================================================================
-       12. MEDICINE MODULE (WEDNESDAY-ONLY "TAKE" BUTTON ACTIVATION)
+       13. MEDICINE MODULE (DEDUPLICATED, WEDNESDAY LOCK & LIVE TIMERS)
     ==================================================================== */
     function getNextDoseSchedule(med, isTakenToday) {
       const now = new Date();
@@ -1414,13 +1426,13 @@
           showToast("VAST IWO D3 can strictly only be taken on Wednesdays!", "warn");
           return;
         }
-        const alreadyTakenThisDay = logs.some(l => l.rxId === rxId && parseEntryDateTime(l).dateKey === ist.dateKey);
+        const alreadyTakenThisDay = logs.some(l => (l.rxId === rxId || (l.name === med.name && l.slot === med.slot)) && parseEntryDateTime(l).dateKey === ist.dateKey);
         if (alreadyTakenThisDay) {
           showToast(`${med.name} already logged and locked for today!`, "lock");
           return;
         }
       } else {
-        const alreadyTakenToday = logs.some(l => l.rxId === rxId && parseEntryDateTime(l).dateKey === ist.dateKey);
+        const alreadyTakenToday = logs.some(l => (l.rxId === rxId || (l.name === med.name && l.slot === med.slot)) && parseEntryDateTime(l).dateKey === ist.dateKey);
         if (alreadyTakenToday) {
           showToast(`${med.name} (${med.slot}) is already consumed and locked!`, "lock");
           return;
@@ -1452,7 +1464,7 @@
 
       const freq = slot.includes("Weekly") ? "Weekly" : "Daily";
       const newMed = {
-        id: "rx_" + Date.now(),
+        id: "rx_" + Date.now() + Math.random().toString(36).substring(2, 6),
         name,
         dose,
         slot,
@@ -1476,7 +1488,7 @@
         desc: "Are you sure you want to remove this prescription from your doctor's regimen?",
         onConfirm: async () => {
           let list = await getPrescriptions();
-          list = list.filter(m => m.id !== rxId);
+          list = list.filter(m => m.id !== rxId && m.docId !== rxId);
           await savePrescriptionsList(list);
           showToast("Prescription removed.", "info");
           renderMedicineTab();
@@ -1503,9 +1515,10 @@
       let lockedCount = 0;
 
       rxList.forEach(med => {
-        const isTakenToday = todayLogs.some(l => l.rxId === med.id);
+        // Robust check for intake by ID or name + slot
+        const isTakenToday = todayLogs.some(l => l.rxId === med.id || (l.name === med.name && l.slot === med.slot));
         if (isTakenToday) lockedCount++;
-        const logEntry = todayLogs.find(l => l.rxId === med.id);
+        const logEntry = todayLogs.find(l => l.rxId === med.id || (l.name === med.name && l.slot === med.slot));
 
         const schedule = getNextDoseSchedule(med, isTakenToday);
         const isWeeklyMed = schedule.isWeekly;
@@ -1537,10 +1550,20 @@
         }
 
         let icon = "💊";
-        if (med.slot.includes("Morning")) icon = "🌅";
-        else if (med.slot.includes("Noon")) icon = "☀️";
-        else if (med.slot.includes("Night")) icon = "🌙";
-        else if (isWeeklyMed) icon = "✨";
+        let slotBadge = `<span class="text-[9px] px-1.5 py-0.2 rounded font-bold bg-slate-100 text-slate-600">${med.slot}</span>`;
+        if (med.slot.includes("Morning")) {
+          icon = "🌅";
+          slotBadge = `<span class="text-[9px] px-1.5 py-0.2 rounded font-bold bg-amber-50 text-amber-700 border border-amber-200">🌅 Morning Dose</span>`;
+        } else if (med.slot.includes("Noon")) {
+          icon = "☀️";
+          slotBadge = `<span class="text-[9px] px-1.5 py-0.2 rounded font-bold bg-blue-50 text-blue-700 border border-blue-200">☀️ Noon Dose</span>`;
+        } else if (med.slot.includes("Night")) {
+          icon = "🌙";
+          slotBadge = `<span class="text-[9px] px-1.5 py-0.2 rounded font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">🌙 Night Dose</span>`;
+        } else if (isWeeklyMed) {
+          icon = "✨";
+          slotBadge = `<span class="text-[9px] px-1.5 py-0.2 rounded font-bold bg-purple-50 text-purple-700 border border-purple-200">✨ Weekly Dose</span>`;
+        }
 
         const card = document.createElement("div");
         card.className = `p-3 rounded-2xl border flex flex-col gap-2 transition ${isTakenToday ? 'bg-slate-50 border-slate-200' : 'bg-white border-teal-200 shadow-xs'}`;
@@ -1549,8 +1572,11 @@
             <div class="flex items-center gap-2.5">
               <span class="text-xl">${icon}</span>
               <div>
-                <div class="text-xs font-black text-slate-800">${med.name}</div>
-                <div class="text-[10px] text-teal-700 font-bold">${med.dose} • ${med.timing}</div>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-black text-slate-800">${med.name}</span>
+                  ${slotBadge}
+                </div>
+                <div class="text-[10px] text-teal-700 font-bold mt-0.5">${med.dose} • ${med.timing}</div>
               </div>
             </div>
             <div>
@@ -1593,7 +1619,7 @@
         rxManageList.appendChild(row);
       });
 
-      // RESTRUCTURED: AUTO HEIGHT / 100% (NO MAX-H RESTRICTIONS)
+      // DATEWISE GROUPED MEDICINE INTAKE FEED (Newest Date First)
       const medLogsFeed = document.getElementById("med-logs-feed");
       medLogsFeed.innerHTML = "";
 
@@ -1637,7 +1663,7 @@
     }
 
     /* ====================================================================
-       13. TWO SPLIT GLYCEMIC TREND GRAPHS
+       14. TWO SPLIT GLYCEMIC TREND GRAPHS
     ==================================================================== */
     function renderDualSugarTrendCharts(sugars) {
       const beforeCanvas = document.getElementById("beforeFoodChart");
@@ -1733,7 +1759,7 @@
       beforeWrapper.style.minWidth = Math.max(320, beforeLabels.length * 52) + "px";
       afterWrapper.style.minWidth = Math.max(320, afterLabels.length * 52) + "px";
 
-      // ----------------- BUILD GRAPH 1: BEFORE FOOD -----------------
+      // BUILD GRAPH 1: BEFORE FOOD
       if (beforeChartInstance) beforeChartInstance.destroy();
       if (beforeValues.length === 0) {
         beforeEmpty.classList.remove("hidden");
@@ -1829,7 +1855,7 @@
         beforeWrapper.parentElement.scrollLeft = beforeWrapper.parentElement.scrollWidth;
       }
 
-      // ----------------- BUILD GRAPH 2: AFTER FOOD -----------------
+      // BUILD GRAPH 2: AFTER FOOD
       if (afterChartInstance) afterChartInstance.destroy();
       if (afterValues.length === 0) {
         afterEmpty.classList.remove("hidden");
@@ -1927,7 +1953,7 @@
     }
 
     /* ====================================================================
-       14. INSIGHTS TAB (TODAY FIRST, YESTERDAY SECOND)
+       15. INSIGHTS TAB (TODAY FIRST, YESTERDAY SECOND)
     ==================================================================== */
     async function renderReport() {
       const ist = getIST();
@@ -1977,7 +2003,6 @@
 
       renderDualSugarTrendCharts(sugars);
 
-      // RESTRUCTURED: AUTO HEIGHT / 100% (NO MAX-H RESTRICTIONS)
       const archive = document.getElementById("date-archive-list");
       archive.innerHTML = "";
 
