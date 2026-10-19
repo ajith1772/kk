@@ -3,7 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>GlycoFit Mobile - IST Edition</title>
+  <title>GlycoFit Health Portal</title>
+
+  <!-- ==================== PWA META TAGS ==================== -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#ffffff" />
+  <!-- iOS / iPadOS PWA Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="GlycoFit" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -11,6 +21,7 @@
   <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
   <style>
     body { -webkit-tap-highlight-color: transparent; }
     details summary::-webkit-details-marker { display: none; }
@@ -46,10 +57,10 @@
     </div>
   </div>
 
-  <!-- Mobile Phone Frame Container (Max 440px) -->
-  <div class="w-full max-w-md bg-white min-h-screen flex flex-col justify-between relative shadow-xl pb-24 border-x border-slate-200">
+  <!-- Mobile & Tablet Responsive Container -->
+  <div class="w-full max-w-md md:max-w-lg bg-white min-h-screen flex flex-col justify-between relative shadow-xl pb-24 border-x border-slate-200">
 
-    <!-- Top App Bar with Live Indian Standard Time (IST) & Cloud Sync -->
+    <!-- Top App Bar with Live Indian Standard Time (IST), Cloud Sync & Install PWA Button -->
     <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md px-4 py-2.5 flex items-center justify-between border-b border-slate-200 shadow-sm">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-indigo-600 flex items-center justify-center font-black text-sm text-white shadow-sm">
@@ -65,8 +76,15 @@
           </div>
         </div>
       </div>
-      <!-- Cloud Status & Clear Memory Action -->
+      
+      <!-- PWA Install, Cloud Sync & Status -->
       <div class="flex items-center gap-1.5">
+        <!-- Install PWA Button (Visible when browser triggers install or for iOS instructions) -->
+        <button id="pwa-install-btn" onclick="triggerPWAInstall()" 
+                class="px-2 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-[10px] font-bold flex items-center gap-1 active:scale-95 shadow-2xs">
+          <span>📲</span>
+          <span>Install</span>
+        </button>
         <button onclick="clearLocalAndSyncCloud()" title="Reload fresh from Firebase" 
                 class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-[10px] font-bold flex items-center gap-1 active:scale-95 shadow-2xs">
           <span>🧹</span>
@@ -78,6 +96,15 @@
         </div>
       </div>
     </header>
+
+    <!-- iOS "Add to Home Screen" Instruction Banner (Auto-detects iPhone / iPad) -->
+    <div id="ios-install-banner" class="hidden mx-3 mt-2 p-2.5 bg-indigo-50 border border-indigo-200 rounded-2xl flex items-center justify-between text-xs text-indigo-900 shadow-2xs">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">📲</span>
+        <span class="text-[11px] leading-tight">Install on iPhone/iPad: Tap <strong>Share (⎙)</strong> then <strong>'Add to Home Screen'</strong></span>
+      </div>
+      <button onclick="document.getElementById('ios-install-banner').classList.add('hidden')" class="text-slate-400 font-bold px-2 py-1">✕</button>
+    </div>
 
     <!-- Main Content Area -->
     <main class="p-3 space-y-4 flex-1 overflow-y-auto">
@@ -321,9 +348,7 @@
           <div id="today-spikes-list" class="space-y-1 text-[11px] text-rose-900 font-medium"></div>
         </div>
 
-        <!-- ===============================================================
-             GRAPH 1: BEFORE FOOD CHECKPOINTS TREND (BELOW, NORMAL, HIGH DOTTED)
-        ================================================================ -->
+        <!-- GRAPH 1: BEFORE FOOD CHECKPOINTS TREND (BELOW, NORMAL, HIGH DOTTED) -->
         <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-1.5">
@@ -333,7 +358,6 @@
             <span id="chart-before-points" class="font-mono text-[9px] text-slate-400 font-bold">0 Points</span>
           </div>
 
-          <!-- Color Checkpoints Legend + Dotted Line Reference -->
           <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 space-y-1 text-[8.5px]">
             <div class="flex items-center justify-between flex-wrap gap-1">
               <span class="font-bold text-slate-600">Points:</span>
@@ -348,7 +372,6 @@
             </div>
           </div>
 
-          <!-- Scrollable Graph Wrapper -->
           <div class="overflow-x-auto no-scrollbar w-full border border-slate-100 rounded-xl bg-slate-50/40 p-1">
             <div id="before-chart-wrapper" class="relative h-44 w-full min-w-[320px]">
               <canvas id="beforeFoodChart"></canvas>
@@ -359,9 +382,7 @@
           </div>
         </div>
 
-        <!-- ===============================================================
-             GRAPH 2: AFTER FOOD CHECKPOINTS TREND (BELOW, NORMAL, HIGH DOTTED)
-        ================================================================ -->
+        <!-- GRAPH 2: AFTER FOOD CHECKPOINTS TREND (BELOW, NORMAL, HIGH DOTTED) -->
         <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-1.5">
@@ -371,7 +392,6 @@
             <span id="chart-after-points" class="font-mono text-[9px] text-slate-400 font-bold">0 Points</span>
           </div>
 
-          <!-- Color Checkpoints Legend + Dotted Line Reference -->
           <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 space-y-1 text-[8.5px]">
             <div class="flex items-center justify-between flex-wrap gap-1">
               <span class="font-bold text-slate-600">Points:</span>
@@ -386,7 +406,6 @@
             </div>
           </div>
 
-          <!-- Scrollable Graph Wrapper -->
           <div class="overflow-x-auto no-scrollbar w-full border border-slate-100 rounded-xl bg-slate-50/40 p-1">
             <div id="after-chart-wrapper" class="relative h-44 w-full min-w-[320px]">
               <canvas id="afterFoodChart"></canvas>
@@ -410,7 +429,7 @@
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 w-full max-w-md bg-white/95 backdrop-blur-lg border-t border-slate-200 px-1.5 py-2 flex justify-around items-center z-50 shadow-md">
+    <nav class="fixed bottom-0 w-full max-w-md md:max-w-lg bg-white/95 backdrop-blur-lg border-t border-slate-200 px-1.5 py-2 flex justify-around items-center z-50 shadow-md">
       <button onclick="nav('sugar')" id="nav-sugar" class="nav-btn flex flex-col items-center gap-0.5 text-indigo-600 font-bold transition">
         <span class="text-base">🩸</span>
         <span class="text-[9px]">Sugar</span>
@@ -456,7 +475,56 @@
     localStorage.clear();
 
     /* ====================================================================
-       2. INTERNAL STYLED UI NOTIFICATION SYSTEM
+       2. PWA INSTALLATION LOGIC (ANDROID, TABLETS & IOS)
+    ==================================================================== */
+    let deferredPrompt = null;
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById("pwa-install-btn");
+      if (btn) btn.classList.remove("hidden");
+    });
+
+    function triggerPWAInstall() {
+      // If browser supports install prompt (Android / Chrome / Edge)
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === "accepted") {
+            showToast("Installing GlycoFit on your device...", "success");
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        // Fallback for iOS / Safari / Tablets where install prompt isn't supported programmatically
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+          document.getElementById("ios-install-banner").classList.remove("hidden");
+        } else {
+          showToast("Tap browser menu (⋮ or Share) ➔ 'Install App' or 'Add to Home screen'", "info");
+        }
+      }
+    }
+
+    // Register Service Worker for PWA
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js")
+          .then((reg) => console.log("PWA Service Worker registered:", reg.scope))
+          .catch((err) => console.log("Service Worker registration notice:", err));
+      });
+    }
+
+    // Auto-detect iOS to show home screen banner
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+    if (isIOSDevice && !isStandalone) {
+      document.getElementById("ios-install-banner").classList.remove("hidden");
+    }
+
+    /* ====================================================================
+       3. INTERNAL STYLED UI NOTIFICATION SYSTEM
     ==================================================================== */
     let toastTimeout = null;
 
@@ -520,7 +588,7 @@
     }
 
     /* ====================================================================
-       3. FIREBASE INITIALIZATION & SYNC
+       4. FIREBASE INITIALIZATION & SYNC
     ==================================================================== */
     async function initFirebase() {
       try {
@@ -560,7 +628,7 @@
     }
 
     /* ====================================================================
-       4. ROBUST DATE & TIME PARSER (IST: UTC + 5:30)
+       5. ROBUST DATE & TIME PARSER (IST: UTC + 5:30)
     ==================================================================== */
     function getIST(dateInput = new Date()) {
       let d = dateInput;
@@ -686,7 +754,7 @@
     }
 
     /* ====================================================================
-       5. PURE FIRESTORE DATA PIPELINE
+       6. PURE FIRESTORE DATA PIPELINE
     ==================================================================== */
     async function saveItem(collectionName, item) {
       if (isFirebaseActive && db) {
@@ -767,7 +835,7 @@
     }
 
     /* ====================================================================
-       6. PROTOCOLS & DEFAULT PRESCRIPTIONS
+       7. PROTOCOLS & DEFAULT PRESCRIPTIONS
     ==================================================================== */
     const SUGAR_SLOTS = [
       { id: "s1", name: "Morning Before Food", short: "Fasting", icon: "🌅" },
@@ -819,7 +887,7 @@
     }
 
     /* ====================================================================
-       7. NAVIGATION
+       8. NAVIGATION
     ==================================================================== */
     function nav(tabId) {
       document.querySelectorAll(".tab-view").forEach(el => el.classList.add("hidden"));
@@ -834,7 +902,7 @@
     }
 
     /* ====================================================================
-       8. SUGAR MODULE (6x LOCK & DATEWISE GROUPED FEED: AUTO HEIGHT)
+       9. SUGAR MODULE (6x LOCK & DATEWISE GROUPED FEED: AUTO HEIGHT)
     ==================================================================== */
     let selectedSugarSlot = "";
 
@@ -918,7 +986,6 @@
 
       document.getElementById("sugar-lock-pill").innerText = `${count}/6 Done`;
 
-      // RESTRUCTURED: AUTO HEIGHT / 100% (NO MAX-H RESTRICTIONS)
       const feed = document.getElementById("sugar-feed");
       feed.innerHTML = "";
 
@@ -965,7 +1032,7 @@
     }
 
     /* ====================================================================
-       9. WATER MODULE (DATEWISE GROUPED FEED: AUTO HEIGHT)
+       10. WATER MODULE (DATEWISE GROUPED FEED: AUTO HEIGHT)
     ==================================================================== */
     async function lockWater(id) {
       const def = WATER_SLOTS.find(w => w.id === id);
@@ -1050,7 +1117,6 @@
 
       document.getElementById("water-lock-count").innerText = `${lockedCount}/7 Logged`;
 
-      // RESTRUCTURED: AUTO HEIGHT / 100% (NO MAX-H RESTRICTIONS)
       const allFeed = document.getElementById("water-all-feed");
       allFeed.innerHTML = "";
 
@@ -1095,7 +1161,7 @@
     }
 
     /* ====================================================================
-       10. FOOD MODULE (DATEWISE GROUPED FEED: AUTO HEIGHT)
+       11. FOOD MODULE (DATEWISE GROUPED FEED: AUTO HEIGHT)
     ==================================================================== */
     let selectedMealType = "";
 
@@ -1186,7 +1252,6 @@
 
       document.getElementById("food-lock-pill").innerText = `${count}/5 Done`;
 
-      // RESTRUCTURED: AUTO HEIGHT / 100% (NO MAX-H RESTRICTIONS)
       const allFeed = document.getElementById("food-all-feed");
       allFeed.innerHTML = "";
 
@@ -1231,7 +1296,7 @@
     }
 
     /* ====================================================================
-       11. MEDICINE MODULE (DATEWISE GROUPED FEED: AUTO HEIGHT)
+       12. MEDICINE MODULE (WEDNESDAY-ONLY "TAKE" BUTTON ACTIVATION)
     ==================================================================== */
     function getNextDoseSchedule(med, isTakenToday) {
       const now = new Date();
@@ -1343,6 +1408,7 @@
       const ist = getIST();
       const logs = await loadItems("medicine_logs");
 
+      // Check Wednesday constraint for weekly med
       if (med.freq === "Weekly" || med.slot.includes("Weekly") || med.slot.includes("Wednesday")) {
         if (ist.dayName !== "Wednesday") {
           showToast("VAST IWO D3 can strictly only be taken on Wednesdays!", "warn");
@@ -1571,7 +1637,7 @@
     }
 
     /* ====================================================================
-       12. TWO SPLIT GLYCEMIC TREND GRAPHS
+       13. TWO SPLIT GLYCEMIC TREND GRAPHS
     ==================================================================== */
     function renderDualSugarTrendCharts(sugars) {
       const beforeCanvas = document.getElementById("beforeFoodChart");
@@ -1861,7 +1927,7 @@
     }
 
     /* ====================================================================
-       13. INSIGHTS TAB (TODAY FIRST, YESTERDAY SECOND)
+       14. INSIGHTS TAB (TODAY FIRST, YESTERDAY SECOND)
     ==================================================================== */
     async function renderReport() {
       const ist = getIST();
