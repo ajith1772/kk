@@ -19,7 +19,32 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 flex justify-center min-h-screen antialiased select-none">
+<body class="bg-slate-100 text-slate-800 flex justify-center min-h-screen antialiased select-none relative">
+
+  <!-- ==================== INTERNAL STYLED UI NOTIFICATIONS ==================== -->
+  
+  <!-- Sleek Mobile Toast Notification -->
+  <div id="ui-toast" class="fixed top-3 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 opacity-0 pointer-events-none -translate-y-3 max-w-xs w-[90%]">
+    <div id="ui-toast-content" class="p-3 rounded-2xl shadow-xl border flex items-center gap-2.5 text-xs font-bold backdrop-blur-md">
+      <span id="ui-toast-icon" class="text-base">ℹ️</span>
+      <span id="ui-toast-msg" class="flex-1 leading-snug">Notification</span>
+    </div>
+  </div>
+
+  <!-- Internal Confirmation Modal -->
+  <div id="ui-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity duration-200 opacity-0 pointer-events-none">
+    <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-2xl max-w-xs w-full space-y-4 text-center">
+      <div id="ui-modal-icon" class="w-12 h-12 mx-auto rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl font-bold">🗑️</div>
+      <div class="space-y-1">
+        <h3 id="ui-modal-title" class="text-sm font-black text-slate-800">Confirm Action</h3>
+        <p id="ui-modal-desc" class="text-xs text-slate-500">Are you sure you want to proceed?</p>
+      </div>
+      <div class="flex gap-2">
+        <button id="ui-modal-cancel" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl active:scale-95 transition">Cancel</button>
+        <button id="ui-modal-confirm" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl active:scale-95 transition shadow-md shadow-rose-600/20">Remove</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Mobile Phone Frame Container (Max 440px) -->
   <div class="w-full max-w-md bg-white min-h-screen flex flex-col justify-between relative shadow-xl pb-24 border-x border-slate-200">
@@ -92,13 +117,13 @@
           </div>
         </div>
 
-        <!-- DATEWISE GROUPED SUGAR RECORDS -->
+        <!-- DATEWISE GROUPED SUGAR RECORDS: FULL HEIGHT (AUTO) -->
         <div class="space-y-2">
           <div class="flex justify-between items-center px-1">
             <span class="text-[11px] font-bold text-slate-600">Sugar Records (Grouped by Date)</span>
             <span class="text-[9px] text-slate-400 font-mono">IST (HH:MM:SS AM/PM)</span>
           </div>
-          <div id="sugar-feed" class="space-y-2 max-h-60 overflow-y-auto no-scrollbar"></div>
+          <div id="sugar-feed" class="space-y-2 h-auto w-full"></div>
         </div>
       </section>
 
@@ -135,20 +160,22 @@
           <button onclick="logWaterCustom(250)" class="flex-1 py-1 bg-white text-[11px] font-bold text-slate-700 rounded-lg border border-slate-200 active:scale-95 shadow-sm">+250ml</button>
         </div>
 
-        <!-- DATEWISE GROUPED WATER RECORDS -->
+        <!-- DATEWISE GROUPED WATER RECORDS: FULL HEIGHT (AUTO) -->
         <div class="space-y-2 pt-2 border-t border-slate-200">
           <div class="flex justify-between items-center px-1">
             <span class="text-[11px] font-bold text-slate-600">Water Intake History (Grouped by Date)</span>
             <span class="text-[9px] text-slate-400 font-mono">IST (HH:MM:SS AM/PM)</span>
           </div>
-          <div id="water-all-feed" class="space-y-2 max-h-56 overflow-y-auto no-scrollbar"></div>
+          <div id="water-all-feed" class="space-y-2 h-auto w-full"></div>
         </div>
       </section>
 
       <!-- ==================== TAB 3: DIET (MEALS LOCK & DATEWISE HISTORY) ==================== -->
       <section id="tab-food" class="tab-view hidden space-y-3">
         <div class="flex items-center justify-between px-1">
-          <span class="text-xs font-black uppercase tracking-wider text-slate-500">🥗 Meals Protocol</span>
+          <span class="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+            <span>🥗 Meals Protocol</span>
+          </span>
           <span id="food-lock-pill" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
             0/5 Done
           </span>
@@ -173,17 +200,17 @@
           </form>
         </div>
 
-        <!-- DATEWISE GROUPED MEALS RECORDS -->
+        <!-- DATEWISE GROUPED MEALS RECORDS: FULL HEIGHT (AUTO) -->
         <div class="space-y-2 pt-1">
           <div class="flex justify-between items-center px-1">
             <span class="text-[11px] font-bold text-slate-600">Diet & Meals History (Grouped by Date)</span>
             <span class="text-[9px] text-slate-400 font-mono">IST (HH:MM:SS AM/PM)</span>
           </div>
-          <div id="food-all-feed" class="space-y-2 max-h-56 overflow-y-auto no-scrollbar"></div>
+          <div id="food-all-feed" class="space-y-2 h-auto w-full"></div>
         </div>
       </section>
 
-      <!-- ==================== TAB 4: MEDICINE (PRESCRIPTION & EXACT NEXT REMINDERS) ==================== -->
+      <!-- ==================== TAB 4: MEDICINE (PRESCRIPTION & EXACT REMINDERS) ==================== -->
       <section id="tab-meds" class="tab-view hidden space-y-3">
         <div class="flex items-center justify-between px-1">
           <div>
@@ -253,17 +280,17 @@
           </div>
         </details>
 
-        <!-- DATEWISE GROUPED MEDICINE INTAKE RECORDS -->
+        <!-- DATEWISE GROUPED MEDICINE INTAKE RECORDS: FULL HEIGHT (AUTO) -->
         <div class="space-y-2 pt-1">
           <div class="flex justify-between items-center px-1">
             <span class="text-[11px] font-bold text-slate-600">Medicine History (Grouped by Date)</span>
             <span class="text-[9px] text-slate-400 font-mono">IST (HH:MM:SS AM/PM)</span>
           </div>
-          <div id="med-logs-feed" class="space-y-2 max-h-56 overflow-y-auto no-scrollbar"></div>
+          <div id="med-logs-feed" class="space-y-2 h-auto w-full"></div>
         </div>
       </section>
 
-      <!-- ==================== TAB 5: INSIGHTS & ALL CHECKPOINTS GRAPH ==================== -->
+      <!-- ==================== TAB 5: INSIGHTS & 2 REARRANGED TREND GRAPHS ==================== -->
       <section id="tab-report" class="tab-view hidden space-y-3">
         
         <!-- Live Stat Cards -->
@@ -294,70 +321,89 @@
           <div id="today-spikes-list" class="space-y-1 text-[11px] text-rose-900 font-medium"></div>
         </div>
 
-        <!-- ALL CHECKPOINTS GRAPH -->
-        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+        <!-- ===============================================================
+             GRAPH 1: BEFORE FOOD CHECKPOINTS TREND (BELOW, NORMAL, HIGH DOTTED)
+        ================================================================ -->
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-1.5">
-              <span class="text-xs">📈</span>
-              <span class="text-xs font-black uppercase tracking-wider text-slate-800">All Checkpoints Trend</span>
+              <span class="text-xs">🌅</span>
+              <span class="text-xs font-black uppercase tracking-wider text-slate-800">Before Food Trend</span>
             </div>
-            <span id="chart-points-count" class="font-mono text-[9px] text-slate-400 font-bold">0 Points</span>
+            <span id="chart-before-points" class="font-mono text-[9px] text-slate-400 font-bold">0 Points</span>
           </div>
 
-          <div class="grid grid-cols-2 gap-1.5 text-[8.5px] font-bold p-2 bg-slate-50 rounded-xl border border-slate-200">
-            <div class="space-y-0.5">
-              <span class="text-slate-400 block text-[8px] uppercase">Before Food:</span>
-              <div class="flex flex-wrap gap-1.5 items-center">
-                <span class="flex items-center gap-1 text-orange-700">
-                  <span class="w-2 h-2 rounded-full bg-[#f97316]"></span> Morn
-                </span>
-                <span class="flex items-center gap-1 text-green-700">
-                  <span class="w-2 h-2 rounded-full bg-[#22c55e]"></span> Noon
-                </span>
-                <span class="flex items-center gap-1 text-purple-700">
-                  <span class="w-2 h-2 rounded-full bg-[#a855f7]"></span> Eve
-                </span>
-              </div>
+          <!-- Color Checkpoints Legend + Dotted Line Reference -->
+          <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 space-y-1 text-[8.5px]">
+            <div class="flex items-center justify-between flex-wrap gap-1">
+              <span class="font-bold text-slate-600">Points:</span>
+              <span class="flex items-center gap-1 text-orange-700 font-bold"><span class="w-2 h-2 rounded-full bg-[#f97316]"></span> Morn (Fast)</span>
+              <span class="flex items-center gap-1 text-green-700 font-bold"><span class="w-2 h-2 rounded-full bg-[#22c55e]"></span> Noon (Pre-Ln)</span>
+              <span class="flex items-center gap-1 text-purple-700 font-bold"><span class="w-2 h-2 rounded-full bg-[#a855f7]"></span> Eve (Pre-Dn)</span>
             </div>
-
-            <div class="space-y-0.5 border-l border-slate-200 pl-2">
-              <span class="text-slate-400 block text-[8px] uppercase">After Food:</span>
-              <div class="flex flex-wrap gap-1.5 items-center">
-                <span class="flex items-center gap-1 text-red-700">
-                  <span class="w-2 h-2 rounded-full bg-[#ef4444]"></span> Morn
-                </span>
-                <span class="flex items-center gap-1 text-yellow-700">
-                  <span class="w-2 h-2 rounded-full bg-[#eab308]"></span> Noon
-                </span>
-                <span class="flex items-center gap-1 text-blue-700">
-                  <span class="w-2 h-2 rounded-full bg-[#3b82f6]"></span> Eve
-                </span>
-              </div>
+            <div class="flex items-center justify-between flex-wrap gap-1 pt-1 border-t border-slate-200/80 font-mono font-bold">
+              <span class="text-rose-600 flex items-center gap-1">--- High: 125</span>
+              <span class="text-emerald-600 flex items-center gap-1">--- Normal: 100</span>
+              <span class="text-amber-600 flex items-center gap-1">--- Below: 70</span>
             </div>
           </div>
 
+          <!-- Scrollable Graph Wrapper -->
           <div class="overflow-x-auto no-scrollbar w-full border border-slate-100 rounded-xl bg-slate-50/40 p-1">
-            <div id="chart-scroll-wrapper" class="relative h-48 w-full min-w-[320px]">
-              <canvas id="sugarTrendChart"></canvas>
-              <div id="chart-empty-msg" class="hidden absolute inset-0 flex items-center justify-center text-xs text-slate-400 font-medium">
-                Log sugar checkpoints to render graph.
+            <div id="before-chart-wrapper" class="relative h-44 w-full min-w-[320px]">
+              <canvas id="beforeFoodChart"></canvas>
+              <div id="before-empty-msg" class="hidden absolute inset-0 flex items-center justify-center text-xs text-slate-400 font-medium">
+                Log before-food checkpoints to render trend.
               </div>
             </div>
-          </div>
-
-          <div class="flex justify-between items-center text-[9px] text-slate-500 border-t border-slate-100 pt-1 font-medium">
-            <span>● Limits: &lt;100 Pre / &lt;140 Post</span>
-            <span class="text-slate-400">Tap dot for details</span>
           </div>
         </div>
 
-        <!-- DATEWISE ARCHIVE: STRICTLY TODAY FIRST, YESTERDAY SECOND, ETC. -->
+        <!-- ===============================================================
+             GRAPH 2: AFTER FOOD CHECKPOINTS TREND (BELOW, NORMAL, HIGH DOTTED)
+        ================================================================ -->
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs">🍽️</span>
+              <span class="text-xs font-black uppercase tracking-wider text-slate-800">After Food Trend</span>
+            </div>
+            <span id="chart-after-points" class="font-mono text-[9px] text-slate-400 font-bold">0 Points</span>
+          </div>
+
+          <!-- Color Checkpoints Legend + Dotted Line Reference -->
+          <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 space-y-1 text-[8.5px]">
+            <div class="flex items-center justify-between flex-wrap gap-1">
+              <span class="font-bold text-slate-600">Points:</span>
+              <span class="flex items-center gap-1 text-red-700 font-bold"><span class="w-2 h-2 rounded-full bg-[#ef4444]"></span> Morn (Post-Bk)</span>
+              <span class="flex items-center gap-1 text-yellow-700 font-bold"><span class="w-2 h-2 rounded-full bg-[#eab308]"></span> Noon (Post-Ln)</span>
+              <span class="flex items-center gap-1 text-blue-700 font-bold"><span class="w-2 h-2 rounded-full bg-[#3b82f6]"></span> Eve (Post-Dn)</span>
+            </div>
+            <div class="flex items-center justify-between flex-wrap gap-1 pt-1 border-t border-slate-200/80 font-mono font-bold">
+              <span class="text-rose-600 flex items-center gap-1">--- High: 200</span>
+              <span class="text-emerald-600 flex items-center gap-1">--- Normal: 140</span>
+              <span class="text-amber-600 flex items-center gap-1">--- Below: 70</span>
+            </div>
+          </div>
+
+          <!-- Scrollable Graph Wrapper -->
+          <div class="overflow-x-auto no-scrollbar w-full border border-slate-100 rounded-xl bg-slate-50/40 p-1">
+            <div id="after-chart-wrapper" class="relative h-44 w-full min-w-[320px]">
+              <canvas id="afterFoodChart"></canvas>
+              <div id="after-empty-msg" class="hidden absolute inset-0 flex items-center justify-center text-xs text-slate-400 font-medium">
+                Log after-food checkpoints to render trend.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DATEWISE ARCHIVE: FULL HEIGHT (AUTO) - TODAY FIRST, YESTERDAY SECOND, ETC. -->
         <div class="space-y-2 pt-1">
           <div class="flex justify-between items-center px-1">
             <span class="text-xs font-black uppercase tracking-wider text-slate-600">📅 Daily Records & Spikes</span>
-            <span class="text-[10px] text-slate-400">Today first, yesterday second</span>
+            <span class="text-[10px] text-slate-400 font-medium">Today first, yesterday second</span>
           </div>
-          <div id="date-archive-list" class="space-y-2"></div>
+          <div id="date-archive-list" class="space-y-2 h-auto w-full"></div>
         </div>
       </section>
 
@@ -404,11 +450,78 @@
 
     let db = null;
     let isFirebaseActive = false;
-    let sugarChartInstance = null;
+    let beforeChartInstance = null;
+    let afterChartInstance = null;
 
     localStorage.clear();
-    console.log("🧹 Direct Firestore cloud mode active.");
 
+    /* ====================================================================
+       2. INTERNAL STYLED UI NOTIFICATION SYSTEM
+    ==================================================================== */
+    let toastTimeout = null;
+
+    function showToast(msg, type = "info") {
+      const toast = document.getElementById("ui-toast");
+      const content = document.getElementById("ui-toast-content");
+      const icon = document.getElementById("ui-toast-icon");
+      const text = document.getElementById("ui-toast-msg");
+
+      if (!toast || !content || !icon || !text) return;
+
+      text.innerText = msg;
+
+      if (type === "success") {
+        content.className = "p-3 rounded-2xl shadow-xl border border-emerald-300 bg-emerald-50 text-emerald-900 flex items-center gap-2.5 text-xs font-bold";
+        icon.innerText = "✅";
+      } else if (type === "lock" || type === "warn") {
+        content.className = "p-3 rounded-2xl shadow-xl border border-amber-300 bg-amber-50 text-amber-900 flex items-center gap-2.5 text-xs font-bold";
+        icon.innerText = type === "lock" ? "🔒" : "⚠️";
+      } else if (type === "error") {
+        content.className = "p-3 rounded-2xl shadow-xl border border-rose-300 bg-rose-50 text-rose-900 flex items-center gap-2.5 text-xs font-bold";
+        icon.innerText = "🚨";
+      } else {
+        content.className = "p-3 rounded-2xl shadow-xl border border-slate-300 bg-white text-slate-800 flex items-center gap-2.5 text-xs font-bold";
+        icon.innerText = "ℹ️";
+      }
+
+      toast.classList.remove("opacity-0", "pointer-events-none", "-translate-y-3");
+      toast.classList.add("opacity-100", "translate-y-0");
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add("opacity-0", "pointer-events-none", "-translate-y-3");
+        toast.classList.remove("opacity-100", "translate-y-0");
+      }, 3200);
+    }
+
+    function showConfirmModal({ title, desc, onConfirm }) {
+      const modal = document.getElementById("ui-modal");
+      document.getElementById("ui-modal-title").innerText = title || "Confirm Action";
+      document.getElementById("ui-modal-desc").innerText = desc || "Are you sure you want to proceed?";
+
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      modal.classList.add("opacity-100");
+
+      const cancelBtn = document.getElementById("ui-modal-cancel");
+      const confirmBtn = document.getElementById("ui-modal-confirm");
+
+      const cleanup = () => {
+        modal.classList.add("opacity-0", "pointer-events-none");
+        modal.classList.remove("opacity-100");
+        cancelBtn.onclick = null;
+        confirmBtn.onclick = null;
+      };
+
+      cancelBtn.onclick = cleanup;
+      confirmBtn.onclick = () => {
+        cleanup();
+        if (onConfirm) onConfirm();
+      };
+    }
+
+    /* ====================================================================
+       3. FIREBASE INITIALIZATION & SYNC
+    ==================================================================== */
     async function initFirebase() {
       try {
         if (!firebase.apps.length) {
@@ -423,10 +536,9 @@
         pill.className = "flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-300";
         pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>Cloud</span>`;
 
-        // Real-time listener for medicine logs so console edits reflect immediately
         db.collection("medicine_logs").onSnapshot(() => {
           renderMedicineTab();
-        }, (err) => console.warn("Real-time listener warning:", err));
+        }, (err) => console.warn("Real-time listener notice:", err));
 
         await fetchAllData();
       } catch (err) {
@@ -444,11 +556,11 @@
       } else {
         await fetchAllData();
       }
-      alert("✅ Data freshly pulled from Firebase Cloud Firestore!");
+      showToast("Data refreshed from Cloud Firestore!", "success");
     }
 
     /* ====================================================================
-       2. RESTRUCTURED ROBUST DATE & TIME PARSER (HONORS FIRESTORE EDITS)
+       4. ROBUST DATE & TIME PARSER (IST: UTC + 5:30)
     ==================================================================== */
     function getIST(dateInput = new Date()) {
       let d = dateInput;
@@ -493,7 +605,6 @@
       };
     }
 
-    // Universal Smart Parser: Reads manual string edits or Timestamp types from Firebase Console
     function parseEntryDateTime(entry) {
       if (!entry) return getIST();
 
@@ -552,7 +663,6 @@
         groups[date].push(item);
       });
 
-      // STRICTLY DESCENDING: Today first, Yesterday second, etc.
       const sortedDates = Object.keys(groups).sort((a, b) => {
         const [d1, m1, y1] = a.split('/').map(Number);
         const [d2, m2, y2] = b.split('/').map(Number);
@@ -576,7 +686,7 @@
     }
 
     /* ====================================================================
-       3. PURE FIRESTORE DATA PIPELINE
+       5. PURE FIRESTORE DATA PIPELINE
     ==================================================================== */
     async function saveItem(collectionName, item) {
       if (isFirebaseActive && db) {
@@ -584,7 +694,7 @@
           await db.collection(collectionName).add(item);
         } catch (e) {
           console.error(`Error saving to Firestore collection ${collectionName}:`, e);
-          alert("Firebase write error. Check permissions.");
+          showToast("Failed to save to cloud.", "error");
         }
       }
     }
@@ -595,7 +705,6 @@
           const snap = await db.collection(collectionName).limit(350).get();
           const items = snap.docs.map(doc => ({ ...doc.data(), _id: doc.id }));
           
-          // Sort accurately by parsed date & time descending (TODAY first, YESTERDAY second)
           items.sort((a, b) => {
             const da = parseEntryDateTime(a);
             const db_ = parseEntryDateTime(b);
@@ -658,7 +767,7 @@
     }
 
     /* ====================================================================
-       4. PROTOCOLS & DEFAULT PRESCRIPTIONS
+       6. PROTOCOLS & DEFAULT PRESCRIPTIONS
     ==================================================================== */
     const SUGAR_SLOTS = [
       { id: "s1", name: "Morning Before Food", short: "Fasting", icon: "🌅" },
@@ -710,7 +819,7 @@
     }
 
     /* ====================================================================
-       5. NAVIGATION
+       7. NAVIGATION
     ==================================================================== */
     function nav(tabId) {
       document.querySelectorAll(".tab-view").forEach(el => el.classList.add("hidden"));
@@ -725,7 +834,7 @@
     }
 
     /* ====================================================================
-       6. SUGAR MODULE (6x LOCK & DATEWISE GROUPED FEED)
+       8. SUGAR MODULE (6x LOCK & DATEWISE GROUPED FEED: AUTO HEIGHT)
     ==================================================================== */
     let selectedSugarSlot = "";
 
@@ -740,12 +849,15 @@
       e.preventDefault();
       const slot = document.getElementById("sugar-slot").value;
       const val = parseFloat(document.getElementById("sugar-value").value);
-      if (!slot) { alert("Please tap a slot above!"); return; }
+      if (!slot) {
+        showToast("Please tap a checkpoint slot above first!", "warn");
+        return;
+      }
 
       const ist = getIST();
       const all = await loadItems("sugar_logs");
       if (all.some(s => s.dateKey === ist.dateKey && s.slot === slot)) {
-        alert("🔒 This checkpoint is already locked for today in Firestore!");
+        showToast(`"${slot}" is already locked for today!`, "lock");
         return;
       }
 
@@ -762,6 +874,7 @@
       selectedSugarSlot = "";
       document.getElementById("sugar-slot").value = "";
       document.getElementById("selected-slot-label").innerText = "Tap a checkpoint above";
+      showToast(`${slot}: ${val} mg/dL recorded successfully.`, "success");
       fetchAllData();
     });
 
@@ -805,6 +918,7 @@
 
       document.getElementById("sugar-lock-pill").innerText = `${count}/6 Done`;
 
+      // RESTRUCTURED: AUTO HEIGHT / 100% (NO MAX-H RESTRICTIONS)
       const feed = document.getElementById("sugar-feed");
       feed.innerHTML = "";
 
@@ -820,7 +934,7 @@
         const isToday = (dateStr === ist.dateKey);
 
         const groupCard = document.createElement("div");
-        groupCard.className = "bg-slate-50/80 rounded-2xl border border-slate-200 p-2.5 space-y-1.5 shadow-2xs";
+        groupCard.className = "bg-slate-50/80 rounded-2xl border border-slate-200 p-2.5 space-y-1.5 shadow-2xs h-auto w-full";
 
         groupCard.innerHTML = `
           <div class="flex items-center justify-between pb-1 border-b border-slate-200/80">
@@ -831,9 +945,9 @@
             </span>
             <span class="text-[9px] font-bold text-slate-400 font-mono">${items.length} checks</span>
           </div>
-          <div class="space-y-1">
+          <div class="space-y-1 h-auto w-full">
             ${items.map(l => `
-              <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs">
+              <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs h-auto w-full">
                 <div>
                   <div class="font-bold text-slate-800">${l.slot}</div>
                   <div class="text-[9px] font-mono text-slate-500">${getISTTimeOnly(l)}</div>
@@ -851,7 +965,7 @@
     }
 
     /* ====================================================================
-       7. WATER MODULE (DATEWISE GROUPED FEED)
+       9. WATER MODULE (DATEWISE GROUPED FEED: AUTO HEIGHT)
     ==================================================================== */
     async function lockWater(id) {
       const def = WATER_SLOTS.find(w => w.id === id);
@@ -859,7 +973,7 @@
       const ist = getIST();
       const all = await loadItems("water_logs");
       if (all.some(w => w.dateKey === ist.dateKey && w.slotId === id)) {
-        alert("🔒 Slot already locked for today in Firestore!");
+        showToast(`Slot "${def.name}" already locked for today!`, "lock");
         return;
       }
       await saveItem("water_logs", {
@@ -869,6 +983,7 @@
         dateKey: ist.dateKey,
         rawDate: ist.rawDate
       });
+      showToast(`+${def.amount}ml logged and locked.`, "success");
       fetchAllData();
     }
 
@@ -881,6 +996,7 @@
         dateKey: ist.dateKey,
         rawDate: ist.rawDate
       });
+      showToast(`+${ml}ml extra water logged.`, "success");
       fetchAllData();
     }
 
@@ -934,6 +1050,7 @@
 
       document.getElementById("water-lock-count").innerText = `${lockedCount}/7 Logged`;
 
+      // RESTRUCTURED: AUTO HEIGHT / 100% (NO MAX-H RESTRICTIONS)
       const allFeed = document.getElementById("water-all-feed");
       allFeed.innerHTML = "";
 
@@ -950,7 +1067,7 @@
         const dayTotal = items.reduce((acc, curr) => acc + curr.amount, 0);
 
         const groupCard = document.createElement("div");
-        groupCard.className = "bg-slate-50/80 rounded-2xl border border-slate-200 p-2.5 space-y-1.5 shadow-2xs";
+        groupCard.className = "bg-slate-50/80 rounded-2xl border border-slate-200 p-2.5 space-y-1.5 shadow-2xs h-auto w-full";
 
         groupCard.innerHTML = `
           <div class="flex items-center justify-between pb-1 border-b border-slate-200/80">
@@ -961,9 +1078,9 @@
             </span>
             <span class="text-[9px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-mono">💧 Total: ${dayTotal} ml</span>
           </div>
-          <div class="space-y-1">
+          <div class="space-y-1 h-auto w-full">
             ${items.map(w => `
-              <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs">
+              <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs h-auto w-full">
                 <div>
                   <div class="font-bold text-slate-800">💧 ${w.name || 'Water'}</div>
                   <div class="text-[9px] font-mono text-slate-500">${getISTTimeOnly(w)}</div>
@@ -978,7 +1095,7 @@
     }
 
     /* ====================================================================
-       8. FOOD MODULE (DATEWISE GROUPED FEED)
+       10. FOOD MODULE (DATEWISE GROUPED FEED: AUTO HEIGHT)
     ==================================================================== */
     let selectedMealType = "";
 
@@ -1001,12 +1118,15 @@
       e.preventDefault();
       const meal = document.getElementById("food-meal-type").value;
       const desc = document.getElementById("food-desc").value;
-      if (!meal) { alert("Please tap a meal slot above!"); return; }
+      if (!meal) {
+        showToast("Please tap a meal slot above first!", "warn");
+        return;
+      }
 
       const ist = getIST();
       const all = await loadItems("food_logs");
       if (all.some(f => f.dateKey === ist.dateKey && f.mealType === meal)) {
-        alert("🔒 This meal is already locked for today in Firestore!");
+        showToast(`"${meal}" is already locked for today!`, "lock");
         return;
       }
 
@@ -1022,6 +1142,7 @@
       selectedMealType = "";
       document.getElementById("food-meal-type").value = "";
       document.getElementById("selected-meal-label").innerText = "Tap a meal slot above";
+      showToast(`${meal} logged and locked for today.`, "success");
       fetchAllData();
     });
 
@@ -1065,6 +1186,7 @@
 
       document.getElementById("food-lock-pill").innerText = `${count}/5 Done`;
 
+      // RESTRUCTURED: AUTO HEIGHT / 100% (NO MAX-H RESTRICTIONS)
       const allFeed = document.getElementById("food-all-feed");
       allFeed.innerHTML = "";
 
@@ -1080,7 +1202,7 @@
         const isToday = (dateStr === ist.dateKey);
 
         const groupCard = document.createElement("div");
-        groupCard.className = "bg-slate-50/80 rounded-2xl border border-slate-200 p-2.5 space-y-1.5 shadow-2xs";
+        groupCard.className = "bg-slate-50/80 rounded-2xl border border-slate-200 p-2.5 space-y-1.5 shadow-2xs h-auto w-full";
 
         groupCard.innerHTML = `
           <div class="flex items-center justify-between pb-1 border-b border-slate-200/80">
@@ -1091,9 +1213,9 @@
             </span>
             <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-mono">${items.length} meals</span>
           </div>
-          <div class="space-y-1">
+          <div class="space-y-1 h-auto w-full">
             ${items.map(f => `
-              <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs text-xs space-y-0.5">
+              <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs text-xs space-y-0.5 h-auto w-full">
                 <div class="flex justify-between items-center font-bold">
                   <span class="text-emerald-700 font-bold">${f.mealType}</span>
                   <span class="text-[9px] font-mono text-slate-500">${getISTTimeOnly(f)}</span>
@@ -1109,7 +1231,7 @@
     }
 
     /* ====================================================================
-       9. MEDICINE MODULE (WEDNESDAY-ONLY "TAKE" BUTTON ACTIVATION)
+       11. MEDICINE MODULE (DATEWISE GROUPED FEED: AUTO HEIGHT)
     ==================================================================== */
     function getNextDoseSchedule(med, isTakenToday) {
       const now = new Date();
@@ -1221,21 +1343,20 @@
       const ist = getIST();
       const logs = await loadItems("medicine_logs");
 
-      // Check Wednesday constraint for weekly med
       if (med.freq === "Weekly" || med.slot.includes("Weekly") || med.slot.includes("Wednesday")) {
         if (ist.dayName !== "Wednesday") {
-          alert("⚠️ VAST IWO D3 60000 can strictly only be taken on Wednesdays!");
+          showToast("VAST IWO D3 can strictly only be taken on Wednesdays!", "warn");
           return;
         }
         const alreadyTakenThisDay = logs.some(l => l.rxId === rxId && parseEntryDateTime(l).dateKey === ist.dateKey);
         if (alreadyTakenThisDay) {
-          alert(`🔒 ${med.name} is already logged and locked for today in Firestore!`);
+          showToast(`${med.name} already logged and locked for today!`, "lock");
           return;
         }
       } else {
         const alreadyTakenToday = logs.some(l => l.rxId === rxId && parseEntryDateTime(l).dateKey === ist.dateKey);
         if (alreadyTakenToday) {
-          alert(`🔒 ${med.name} (${med.slot}) is already consumed and locked for today in Firestore!`);
+          showToast(`${med.name} (${med.slot}) is already consumed and locked!`, "lock");
           return;
         }
       }
@@ -1253,6 +1374,7 @@
         rawDate: ist.rawDate
       });
 
+      showToast(`Consumed: ${med.name} (${med.dose})`, "success");
       fetchAllData();
     }
 
@@ -1278,16 +1400,22 @@
 
       document.getElementById("new-med-name").value = "";
       document.getElementById("new-med-dose").value = "";
-      alert(`✅ Added ${name} directly to Cloud Firestore.`);
+      showToast(`Added ${name} to Doctor's Prescription.`, "success");
       renderMedicineTab();
     });
 
-    async function deletePrescription(rxId) {
-      if (!confirm("Are you sure you want to remove this medicine from your cloud prescription?")) return;
-      let list = await getPrescriptions();
-      list = list.filter(m => m.id !== rxId);
-      await savePrescriptionsList(list);
-      renderMedicineTab();
+    function deletePrescription(rxId) {
+      showConfirmModal({
+        title: "Remove Medicine",
+        desc: "Are you sure you want to remove this prescription from your doctor's regimen?",
+        onConfirm: async () => {
+          let list = await getPrescriptions();
+          list = list.filter(m => m.id !== rxId);
+          await savePrescriptionsList(list);
+          showToast("Prescription removed.", "info");
+          renderMedicineTab();
+        }
+      });
     }
 
     async function renderMedicineTab() {
@@ -1316,7 +1444,6 @@
         const schedule = getNextDoseSchedule(med, isTakenToday);
         const isWeeklyMed = schedule.isWeekly;
 
-        // Status text logic (NEVER shows "Pending today" for weekly med on non-Wednesdays)
         let statusTextHtml = "";
         if (isTakenToday) {
           statusTextHtml = `Taken today at: <strong class="text-slate-700">${getISTTimeOnly(logEntry)}</strong>`;
@@ -1330,21 +1457,16 @@
           statusTextHtml = `<span class="text-amber-700 font-bold">Pending today</span>`;
         }
 
-        // TAKE BUTTON ACTIVATION LOGIC:
-        // Weekly med: Button is active ONLY on Wednesday (the concerned day)!
         let buttonHtml = "";
         if (isTakenToday) {
           buttonHtml = `<span class="px-2.5 py-1.5 bg-slate-100 text-teal-800 text-[10px] font-black rounded-xl border border-slate-200">🔒 Taken</span>`;
         } else if (isWeeklyMed) {
           if (schedule.isTodayWed) {
-            // Active on Wednesday!
             buttonHtml = `<button onclick="takeMedicine('${med.id}')" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 active:scale-95 text-white text-[11px] font-black rounded-xl shadow-md shadow-teal-600/20 animate-pulse">Take</button>`;
           } else {
-            // Disabled on all other days
             buttonHtml = `<button disabled class="px-2.5 py-1.5 bg-slate-100 text-slate-400 text-[10px] font-bold rounded-xl border border-slate-200 cursor-not-allowed">🔒 Active on Wed</button>`;
           }
         } else {
-          // Regular daily medicine: active
           buttonHtml = `<button onclick="takeMedicine('${med.id}')" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 active:scale-95 text-white text-[11px] font-black rounded-xl shadow-md shadow-teal-600/20">Take</button>`;
         }
 
@@ -1405,7 +1527,7 @@
         rxManageList.appendChild(row);
       });
 
-      // DATEWISE GROUPED MEDICINE INTAKE FEED (Newest Date First)
+      // RESTRUCTURED: AUTO HEIGHT / 100% (NO MAX-H RESTRICTIONS)
       const medLogsFeed = document.getElementById("med-logs-feed");
       medLogsFeed.innerHTML = "";
 
@@ -1421,7 +1543,7 @@
         const isToday = (dateStr === ist.dateKey);
 
         const groupCard = document.createElement("div");
-        groupCard.className = "bg-slate-50/80 rounded-2xl border border-slate-200 p-2.5 space-y-1.5 shadow-2xs";
+        groupCard.className = "bg-slate-50/80 rounded-2xl border border-slate-200 p-2.5 space-y-1.5 shadow-2xs h-auto w-full";
 
         groupCard.innerHTML = `
           <div class="flex items-center justify-between pb-1 border-b border-slate-200/80">
@@ -1432,9 +1554,9 @@
             </span>
             <span class="text-[9px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 font-mono">${items.length} doses</span>
           </div>
-          <div class="space-y-1">
+          <div class="space-y-1 h-auto w-full">
             ${items.map(item => `
-              <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs">
+              <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs h-auto w-full">
                 <div>
                   <div class="font-bold text-slate-800">💊 ${item.name} (${item.dose})</div>
                   <div class="text-[9px] font-mono text-slate-500">${getISTTimeOnly(item)}</div>
@@ -1449,27 +1571,28 @@
     }
 
     /* ====================================================================
-       10. TWO-COLORED GLYCEMIC TREND GRAPH
+       12. TWO SPLIT GLYCEMIC TREND GRAPHS
     ==================================================================== */
-    function renderSugarTrendChart(sugars) {
-      const canvas = document.getElementById("sugarTrendChart");
-      const emptyMsg = document.getElementById("chart-empty-msg");
-      const scrollWrapper = document.getElementById("chart-scroll-wrapper");
-      if (!canvas) return;
+    function renderDualSugarTrendCharts(sugars) {
+      const beforeCanvas = document.getElementById("beforeFoodChart");
+      const afterCanvas = document.getElementById("afterFoodChart");
+      const beforeEmpty = document.getElementById("before-empty-msg");
+      const afterEmpty = document.getElementById("after-empty-msg");
+      const beforeWrapper = document.getElementById("before-chart-wrapper");
+      const afterWrapper = document.getElementById("after-chart-wrapper");
+
+      if (!beforeCanvas || !afterCanvas) return;
 
       if (!sugars || sugars.length === 0) {
-        if (sugarChartInstance) {
-          sugarChartInstance.destroy();
-          sugarChartInstance = null;
-        }
-        emptyMsg.classList.remove("hidden");
-        document.getElementById("chart-points-count").innerText = "0 Points";
+        if (beforeChartInstance) beforeChartInstance.destroy();
+        if (afterChartInstance) afterChartInstance.destroy();
+        beforeEmpty.classList.remove("hidden");
+        afterEmpty.classList.remove("hidden");
+        document.getElementById("chart-before-points").innerText = "0 Points";
+        document.getElementById("chart-after-points").innerText = "0 Points";
         return;
       }
 
-      emptyMsg.classList.add("hidden");
-
-      // For line graphs, chronological timeline points from oldest to newest
       const uniqueDates = Array.from(new Set(sugars.map(s => parseEntryDateTime(s).dateKey))).filter(Boolean);
       uniqueDates.sort((a, b) => {
         const [d1, m1, y1] = a.split('/').map(Number);
@@ -1477,148 +1600,268 @@
         return new Date(y1, m1 - 1, d1).getTime() - new Date(y2, m2 - 1, d2).getTime();
       });
 
-      const labels = [];
-      const beforeFoodData = [];
-      const afterFoodData = [];
-      const beforePointColors = [];
-      const afterPointColors = [];
-      const metaInfo = [];
-      let totalPointsCount = 0;
+      const beforeLabels = [];
+      const beforeValues = [];
+      const beforeDotColors = [];
+      const beforeMeta = [];
+
+      const afterLabels = [];
+      const afterValues = [];
+      const afterDotColors = [];
+      const afterMeta = [];
 
       uniqueDates.forEach(dateStr => {
         const daySugars = sugars.filter(s => parseEntryDateTime(s).dateKey === dateStr);
         const shortDate = dateStr.slice(0, 5);
 
-        // Morning
         const mornPre = daySugars.find(s => s.slot === "Morning Before Food");
-        const mornPost = daySugars.find(s => s.slot === "Morning After Food");
-        if (mornPre || mornPost) {
-          labels.push(`${shortDate} 🌅`);
-          beforeFoodData.push(mornPre ? mornPre.value : null);
-          afterFoodData.push(mornPost ? mornPost.value : null);
-          beforePointColors.push("#f97316");
-          afterPointColors.push("#ef4444");
-          metaInfo.push({ shortDate, slotName: "Morn", preVal: mornPre?.value, postVal: mornPost?.value });
-          totalPointsCount += (mornPre ? 1 : 0) + (mornPost ? 1 : 0);
-        }
-
-        // Noon
         const noonPre = daySugars.find(s => s.slot === "Noon Before Food");
-        const noonPost = daySugars.find(s => s.slot === "Noon After Food");
-        if (noonPre || noonPost) {
-          labels.push(`${shortDate} ☀️`);
-          beforeFoodData.push(noonPre ? noonPre.value : null);
-          afterFoodData.push(noonPost ? noonPost.value : null);
-          beforePointColors.push("#22c55e");
-          afterPointColors.push("#eab308");
-          metaInfo.push({ shortDate, slotName: "Noon", preVal: noonPre?.value, postVal: noonPost?.value });
-          totalPointsCount += (noonPre ? 1 : 0) + (noonPost ? 1 : 0);
-        }
-
-        // Evening
         const evePre = daySugars.find(s => s.slot === "Evening/Night Before Food");
+
+        if (mornPre) {
+          beforeLabels.push(`${shortDate} 🌅`);
+          beforeValues.push(mornPre.value);
+          beforeDotColors.push("#f97316");
+          beforeMeta.push({ date: dateStr, slot: "Morn Fasting", val: mornPre.value });
+        }
+        if (noonPre) {
+          beforeLabels.push(`${shortDate} ☀️`);
+          beforeValues.push(noonPre.value);
+          beforeDotColors.push("#22c55e");
+          beforeMeta.push({ date: dateStr, slot: "Noon Pre-Lunch", val: noonPre.value });
+        }
+        if (evePre) {
+          beforeLabels.push(`${shortDate} 🌙`);
+          beforeValues.push(evePre.value);
+          beforeDotColors.push("#a855f7");
+          beforeMeta.push({ date: dateStr, slot: "Eve Pre-Dinner", val: evePre.value });
+        }
+
+        const mornPost = daySugars.find(s => s.slot === "Morning After Food");
+        const noonPost = daySugars.find(s => s.slot === "Noon After Food");
         const evePost = daySugars.find(s => s.slot === "Evening/Night After Food");
-        if (evePre || evePost) {
-          labels.push(`${shortDate} 🌙`);
-          beforeFoodData.push(evePre ? evePre.value : null);
-          afterFoodData.push(evePost ? evePost.value : null);
-          beforePointColors.push("#a855f7");
-          afterPointColors.push("#3b82f6");
-          metaInfo.push({ shortDate, slotName: "Eve", preVal: evePre?.value, postVal: evePost?.value });
-          totalPointsCount += (evePre ? 1 : 0) + (evePost ? 1 : 0);
+
+        if (mornPost) {
+          afterLabels.push(`${shortDate} 🥐`);
+          afterValues.push(mornPost.value);
+          afterDotColors.push("#ef4444");
+          afterMeta.push({ date: dateStr, slot: "Morn Post-Bk", val: mornPost.value });
+        }
+        if (noonPost) {
+          afterLabels.push(`${shortDate} 🍛`);
+          afterValues.push(noonPost.value);
+          afterDotColors.push("#eab308");
+          afterMeta.push({ date: dateStr, slot: "Noon Post-Lunch", val: noonPost.value });
+        }
+        if (evePost) {
+          afterLabels.push(`${shortDate} 🍽️`);
+          afterValues.push(evePost.value);
+          afterDotColors.push("#3b82f6");
+          afterMeta.push({ date: dateStr, slot: "Eve Post-Dinner", val: evePost.value });
         }
       });
 
-      document.getElementById("chart-points-count").innerText = `${totalPointsCount} Points`;
+      document.getElementById("chart-before-points").innerText = `${beforeValues.length} Points`;
+      document.getElementById("chart-after-points").innerText = `${afterValues.length} Points`;
 
-      const minCalculatedWidth = Math.max(340, labels.length * 48);
-      scrollWrapper.style.minWidth = minCalculatedWidth + "px";
+      beforeWrapper.style.minWidth = Math.max(320, beforeLabels.length * 52) + "px";
+      afterWrapper.style.minWidth = Math.max(320, afterLabels.length * 52) + "px";
 
-      if (sugarChartInstance) sugarChartInstance.destroy();
+      // ----------------- BUILD GRAPH 1: BEFORE FOOD -----------------
+      if (beforeChartInstance) beforeChartInstance.destroy();
+      if (beforeValues.length === 0) {
+        beforeEmpty.classList.remove("hidden");
+      } else {
+        beforeEmpty.classList.add("hidden");
+        const bCtx = beforeCanvas.getContext("2d");
 
-      const ctx = canvas.getContext("2d");
-      sugarChartInstance = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels,
-          datasets: [
-            {
-              label: "Before Food",
-              data: beforeFoodData,
-              borderColor: "rgba(16, 185, 129, 0.4)",
-              backgroundColor: "transparent",
-              borderWidth: 2,
-              borderDash: [3, 3],
-              tension: 0.25,
-              pointBackgroundColor: beforePointColors,
-              pointBorderColor: "#ffffff",
-              pointBorderWidth: 2,
-              pointRadius: 6,
-              pointHoverRadius: 8.5,
-              spanGaps: true
-            },
-            {
-              label: "After Food",
-              data: afterFoodData,
-              borderColor: "rgba(244, 63, 94, 0.4)",
-              backgroundColor: "transparent",
-              borderWidth: 2,
-              tension: 0.25,
-              pointBackgroundColor: afterPointColors,
-              pointBorderColor: "#ffffff",
-              pointBorderWidth: 2,
-              pointRadius: 6,
-              pointHoverRadius: 8.5,
-              spanGaps: true
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { mode: "nearest", intersect: true },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: "#0f172a",
-              padding: 10,
-              cornerRadius: 12,
-              displayColors: true,
-              boxWidth: 8,
-              boxHeight: 8,
-              titleColor: "#94a3b8",
-              titleFont: { size: 9, weight: "bold" },
-              bodyColor: "#ffffff",
-              bodyFont: { size: 16, weight: "900" },
-              callbacks: {
-                title: function(items) {
-                  const idx = items[0].dataIndex;
-                  const datasetIdx = items[0].datasetIndex;
-                  const m = metaInfo[idx];
-                  const type = datasetIdx === 0 ? "Pre-Food" : "Post-Food";
-                  return `${m.shortDate} • ${m.slotName} (${type})`;
-                },
-                label: function(context) {
-                  const val = context.parsed.y;
-                  if (val === null || val === undefined) return "";
-                  return ` ${val} mg/dL`;
-                }
+        beforeChartInstance = new Chart(bCtx, {
+          type: "line",
+          data: {
+            labels: beforeLabels,
+            datasets: [
+              {
+                label: "Before Food",
+                data: beforeValues,
+                borderColor: "rgba(100, 116, 139, 0.45)",
+                backgroundColor: "transparent",
+                borderWidth: 2,
+                tension: 0.25,
+                pointBackgroundColor: beforeDotColors,
+                pointBorderColor: "#ffffff",
+                pointBorderWidth: 2,
+                pointRadius: 6.5,
+                pointHoverRadius: 9,
+                spanGaps: true
+              },
+              {
+                label: "High Limit (125)",
+                data: beforeLabels.map(() => 125),
+                borderColor: "rgba(239, 68, 68, 0.8)",
+                borderWidth: 1.5,
+                borderDash: [5, 4],
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                fill: false
+              },
+              {
+                label: "Normal Limit (100)",
+                data: beforeLabels.map(() => 100),
+                borderColor: "rgba(16, 185, 129, 0.85)",
+                borderWidth: 1.5,
+                borderDash: [5, 4],
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                fill: false
+              },
+              {
+                label: "Below Limit (70)",
+                data: beforeLabels.map(() => 70),
+                borderColor: "rgba(245, 158, 11, 0.85)",
+                borderWidth: 1.5,
+                borderDash: [5, 4],
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                fill: false
               }
-            }
+            ]
           },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: "#64748b", font: { size: 9, weight: "bold" } } },
-            y: { min: 40, suggestedMax: 220, grid: { color: "rgba(226, 232, 240, 0.7)", drawBorder: false }, ticks: { color: "#64748b", font: { size: 9 }, stepSize: 40 } }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "nearest", intersect: true },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: "#0f172a",
+                padding: 10,
+                cornerRadius: 12,
+                filter: (item) => Boolean(item && item.datasetIndex === 0),
+                callbacks: {
+                  title: (items) => {
+                    if (!items || !items.length || !items[0]) return "";
+                    const idx = items[0].dataIndex;
+                    if (idx === undefined || !beforeMeta || !beforeMeta[idx]) return "";
+                    const m = beforeMeta[idx];
+                    return `${m.date.slice(0, 5)} • ${m.slot}`;
+                  },
+                  label: (ctx) => {
+                    if (!ctx || ctx.datasetIndex !== 0 || !ctx.parsed || ctx.parsed.y === null) return "";
+                    return ` ${ctx.parsed.y} mg/dL (Indian Limit: <100)`;
+                  }
+                },
+                titleFont: { size: 9, weight: "bold" },
+                bodyFont: { size: 15, weight: "900" }
+              }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: "#64748b", font: { size: 9, weight: "bold" } } },
+              y: { min: 40, suggestedMax: 180, grid: { color: "rgba(226, 232, 240, 0.6)" }, ticks: { color: "#64748b", font: { size: 9 } } }
+            }
           }
-        }
-      });
+        });
+        beforeWrapper.parentElement.scrollLeft = beforeWrapper.parentElement.scrollWidth;
+      }
 
-      const container = scrollWrapper.parentElement;
-      if (container) container.scrollLeft = container.scrollWidth;
+      // ----------------- BUILD GRAPH 2: AFTER FOOD -----------------
+      if (afterChartInstance) afterChartInstance.destroy();
+      if (afterValues.length === 0) {
+        afterEmpty.classList.remove("hidden");
+      } else {
+        afterEmpty.classList.add("hidden");
+        const aCtx = afterCanvas.getContext("2d");
+
+        afterChartInstance = new Chart(aCtx, {
+          type: "line",
+          data: {
+            labels: afterLabels,
+            datasets: [
+              {
+                label: "After Food",
+                data: afterValues,
+                borderColor: "rgba(100, 116, 139, 0.45)",
+                backgroundColor: "transparent",
+                borderWidth: 2,
+                tension: 0.25,
+                pointBackgroundColor: afterDotColors,
+                pointBorderColor: "#ffffff",
+                pointBorderWidth: 2,
+                pointRadius: 6.5,
+                pointHoverRadius: 9,
+                spanGaps: true
+              },
+              {
+                label: "High Limit (200)",
+                data: afterLabels.map(() => 200),
+                borderColor: "rgba(239, 68, 68, 0.8)",
+                borderWidth: 1.5,
+                borderDash: [5, 4],
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                fill: false
+              },
+              {
+                label: "Normal Limit (140)",
+                data: afterLabels.map(() => 140),
+                borderColor: "rgba(16, 185, 129, 0.85)",
+                borderWidth: 1.5,
+                borderDash: [5, 4],
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                fill: false
+              },
+              {
+                label: "Below Limit (70)",
+                data: afterLabels.map(() => 70),
+                borderColor: "rgba(245, 158, 11, 0.85)",
+                borderWidth: 1.5,
+                borderDash: [5, 4],
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                fill: false
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "nearest", intersect: true },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: "#0f172a",
+                padding: 10,
+                cornerRadius: 12,
+                filter: (item) => Boolean(item && item.datasetIndex === 0),
+                callbacks: {
+                  title: (items) => {
+                    if (!items || !items.length || !items[0]) return "";
+                    const idx = items[0].dataIndex;
+                    if (idx === undefined || !afterMeta || !afterMeta[idx]) return "";
+                    const m = afterMeta[idx];
+                    return `${m.date.slice(0, 5)} • ${m.slot}`;
+                  },
+                  label: (ctx) => {
+                    if (!ctx || ctx.datasetIndex !== 0 || !ctx.parsed || ctx.parsed.y === null) return "";
+                    return ` ${ctx.parsed.y} mg/dL (Indian Limit: <140)`;
+                  }
+                },
+                titleFont: { size: 9, weight: "bold" },
+                bodyFont: { size: 15, weight: "900" }
+              }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: "#64748b", font: { size: 9, weight: "bold" } } },
+              y: { min: 40, suggestedMax: 260, grid: { color: "rgba(226, 232, 240, 0.6)" }, ticks: { color: "#64748b", font: { size: 9 } } }
+            }
+          }
+        });
+        afterWrapper.parentElement.scrollLeft = afterWrapper.parentElement.scrollWidth;
+      }
     }
 
     /* ====================================================================
-       11. INSIGHTS TAB (STRICTLY TODAY FIRST, YESTERDAY SECOND)
+       13. INSIGHTS TAB (TODAY FIRST, YESTERDAY SECOND)
     ==================================================================== */
     async function renderReport() {
       const ist = getIST();
@@ -1666,13 +1909,12 @@
         spikeCard.classList.add("hidden");
       }
 
-      renderSugarTrendChart(sugars);
+      renderDualSugarTrendCharts(sugars);
 
-      // DATEWISE ARCHIVE: STRICTLY DESCENDING (TODAY FIRST, YESTERDAY SECOND, ETC.)
+      // RESTRUCTURED: AUTO HEIGHT / 100% (NO MAX-H RESTRICTIONS)
       const archive = document.getElementById("date-archive-list");
       archive.innerHTML = "";
 
-      // Calculate Yesterday's date key in IST
       const yesterdayDate = new Date(ist.istDate.getTime() - (24 * 60 * 60 * 1000));
       const yDay = String(yesterdayDate.getDate()).padStart(2, '0');
       const yMonth = String(yesterdayDate.getMonth() + 1).padStart(2, '0');
@@ -1686,7 +1928,6 @@
         ...foods.map(f => parseEntryDateTime(f).dateKey)
       ])).filter(Boolean);
 
-      // STRICTLY NEWEST FIRST: Today first, Yesterday second, etc.
       dates.sort((a,b) => {
         const [d1,m1,y1] = a.split('/').map(Number);
         const [d2,m2,y2] = b.split('/').map(Number);
@@ -1711,9 +1952,8 @@
         });
 
         const details = document.createElement("details");
-        details.className = "group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs transition";
+        details.className = "group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs transition h-auto w-full";
 
-        // Relative Tag (Today vs Yesterday)
         let relativePill = '';
         if (isToday) {
           relativePill = `<span class="px-1.5 py-0.2 bg-indigo-600 text-white text-[9px] font-black rounded uppercase">Today</span>`;
@@ -1736,8 +1976,8 @@
               </span>
             </div>
           </summary>
-          <div class="p-3 border-t border-slate-200 bg-white space-y-2.5 text-xs">
-            <div class="p-2 rounded-xl bg-rose-50 border border-rose-200 space-y-1">
+          <div class="p-3 border-t border-slate-200 bg-white space-y-2.5 text-xs h-auto w-full">
+            <div class="p-2 rounded-xl bg-rose-50 border border-rose-200 space-y-1 h-auto w-full">
               <div class="text-[10px] font-bold uppercase text-rose-800 flex items-center gap-1">
                 <span>🚨</span> Sugar Spikes Breakdown on ${d} (IST):
               </div>
@@ -1751,9 +1991,9 @@
                 </div>
               `).join('') : '<p class="text-[10px] text-emerald-800 font-medium">✅ Stable glucose control. Zero spikes occurred on this date.</p>'}
             </div>
-            <div>
+            <div class="h-auto w-full">
               <span class="text-[10px] font-bold uppercase text-slate-500">🩸 Sugar Checkpoints (${dSugars.length}/6)</span>
-              <div class="grid grid-cols-2 gap-1.5 mt-1">
+              <div class="grid grid-cols-2 gap-1.5 mt-1 h-auto w-full">
                 ${dSugars.map(s => `
                   <div class="p-1.5 bg-slate-50 rounded-lg border border-slate-200 text-[10px] flex justify-between">
                     <div>
@@ -1765,9 +2005,9 @@
                 `).join('') || '<span class="text-[10px] text-slate-400">None</span>'}
               </div>
             </div>
-            <div>
+            <div class="h-auto w-full">
               <span class="text-[10px] font-bold uppercase text-slate-500">🥗 Meals Consumed (${dFoods.length})</span>
-              <div class="space-y-1 mt-1">
+              <div class="space-y-1 mt-1 h-auto w-full">
                 ${dFoods.map(f => `
                   <div class="text-[10px] text-slate-700 bg-slate-50 p-1.5 rounded-lg border border-slate-200">
                     <div class="flex justify-between items-center">
