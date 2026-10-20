@@ -1,14 +1,16 @@
-const CACHE_NAME = 'glycofit-pwa-v1';
+const CACHE_NAME = 'glycofit-pwa-v2';
 const ASSETS_TO_CACHE = [
+  './',
   './index.html',
   './manifest.json',
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/chart.js',
   'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js'
+  'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js',
+  'https://cdn-icons-png.flaticon.com/192/2966/2966327.png',
+  'https://cdn-icons-png.flaticon.com/512/2966/2966327.png'
 ];
 
-// Install: Cache Shell Assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -18,7 +20,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate: Clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -29,9 +30,8 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: Network-First for Firebase APIs, Cache-First for static assets
 self.addEventListener('fetch', (event) => {
-  // Let Firebase Firestore cloud requests pass through directly to network
+  // Let Firebase Firestore live cloud queries pass directly to network
   if (event.request.url.includes('firestore.googleapis.com') || event.request.url.includes('googleapis.com')) {
     return;
   }
@@ -42,7 +42,6 @@ self.addEventListener('fetch', (event) => {
         return cachedResponse;
       }
       return fetch(event.request).catch(() => {
-        // Fallback if offline
         return caches.match('./index.html');
       });
     })
