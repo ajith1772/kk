@@ -3,17 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>GlycoFit Health Portal</title>
-
-  <!-- ==================== PWA META TAGS ==================== -->
-  <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#ffffff" />
-  <!-- iOS & iPadOS Fullscreen PWA Support -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="GlycoFit" />
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" />
-
+  <title>GlycoFit Mobile - IST Edition</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -78,7 +68,6 @@
       
       <!-- PWA Install, Cloud Sync & Status -->
       <div class="flex items-center gap-2">
-        <!-- Install PWA Button -->
         <button id="pwa-install-btn" onclick="triggerPWAInstall()" 
                 class="px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-[10px] md:text-xs font-bold flex items-center gap-1 active:scale-95 shadow-2xs">
           <span>📲</span>
@@ -119,7 +108,6 @@
           </span>
         </div>
 
-        <!-- 6 Checkpoint Tap Chips: 6 in a single row on Tablet! -->
         <div id="sugar-chips-grid" class="grid grid-cols-3 md:grid-cols-6 gap-2 w-full"></div>
 
         <div class="bg-slate-50 p-3 md:p-4 rounded-2xl border border-slate-200 space-y-2.5 shadow-sm w-full">
@@ -144,7 +132,6 @@
           </div>
         </div>
 
-        <!-- DATEWISE GROUPED SUGAR RECORDS -->
         <div class="space-y-2 w-full">
           <div class="flex justify-between items-center px-1">
             <span class="text-[11px] md:text-xs font-bold text-slate-600">Sugar Records (Grouped by Date)</span>
@@ -179,7 +166,6 @@
           <span id="water-lock-count" class="text-[10px] md:text-xs font-extrabold text-blue-700">0/7 Logged</span>
         </div>
 
-        <!-- 7 Water Slots: Multi-column on tablet -->
         <div id="water-slots-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5 w-full"></div>
 
         <div class="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 w-full">
@@ -188,7 +174,6 @@
           <button onclick="logWaterCustom(250)" class="flex-1 py-1.5 bg-white text-[11px] md:text-xs font-bold text-slate-700 rounded-lg border border-slate-200 active:scale-95 shadow-sm">+250ml</button>
         </div>
 
-        <!-- DATEWISE GROUPED WATER RECORDS -->
         <div class="space-y-2 pt-2 border-t border-slate-200 w-full">
           <div class="flex justify-between items-center px-1">
             <span class="text-[11px] md:text-xs font-bold text-slate-600">Water Intake History (Grouped by Date)</span>
@@ -209,7 +194,6 @@
           </span>
         </div>
 
-        <!-- 5 Meal Slots: 5 in a single row on Tablet! -->
         <div id="meal-chips-grid" class="grid grid-cols-3 md:grid-cols-5 gap-2 w-full"></div>
 
         <div class="bg-slate-50 p-3 md:p-4 rounded-2xl border border-slate-200 space-y-2 shadow-sm w-full">
@@ -229,7 +213,6 @@
           </form>
         </div>
 
-        <!-- DATEWISE GROUPED MEALS RECORDS -->
         <div class="space-y-2 pt-1 w-full">
           <div class="flex justify-between items-center px-1">
             <span class="text-[11px] md:text-xs font-bold text-slate-600">Diet & Meals History (Grouped by Date)</span>
@@ -253,7 +236,6 @@
           </span>
         </div>
 
-        <!-- Wednesday Alert -->
         <div id="wed-d3-banner" class="hidden p-3 rounded-xl bg-amber-50 border border-amber-300 flex items-center gap-2 shadow-2xs w-full">
           <span class="text-lg md:text-xl">🔔</span>
           <div class="text-[11px] md:text-xs text-amber-900 font-semibold leading-tight">
@@ -261,10 +243,8 @@
           </div>
         </div>
 
-        <!-- Prescribed Medicines Action List: Expands to 2 Columns on Tablet -->
         <div id="med-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 w-full"></div>
 
-        <!-- Collapsible: Manage Prescriptions -->
         <details class="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-2xs transition w-full">
           <summary class="p-3 cursor-pointer select-none flex items-center justify-between text-xs md:text-sm font-bold text-slate-700 hover:bg-slate-100">
             <div class="flex items-center gap-1.5">
@@ -309,7 +289,6 @@
           </div>
         </details>
 
-        <!-- DATEWISE GROUPED MEDICINE INTAKE RECORDS -->
         <div class="space-y-2 pt-1 w-full">
           <div class="flex justify-between items-center px-1">
             <span class="text-[11px] md:text-xs font-bold text-slate-600">Medicine History (Grouped by Date)</span>
@@ -319,10 +298,10 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 5: INSIGHTS & 2 REARRANGED TREND GRAPHS ==================== -->
+      <!-- ==================== TAB 5: INSIGHTS & 3 GLYCEMIC TREND GRAPHS ==================== -->
       <section id="tab-report" class="tab-view hidden space-y-4 w-full">
         
-        <!-- Live Stat Cards: Spans nicely on Tablet -->
+        <!-- Live Stat Cards -->
         <div class="grid grid-cols-3 gap-3 w-full">
           <div class="bg-slate-50 p-3 md:p-5 rounded-2xl border border-slate-200 text-center shadow-sm">
             <span class="text-[9px] md:text-xs uppercase font-bold text-slate-500 tracking-wider">Avg Sugar</span>
@@ -351,7 +330,7 @@
         </div>
 
         <!-- ===============================================================
-             TABLET VIEW: BOTH GRAPHS SIT SIDE-BY-SIDE ON TABLETS (md:grid-cols-2)
+             3 GRAPHS CONTAINER: GRAPH 1 & 2 SIDE-BY-SIDE, GRAPH 3 FULL WIDTH
         ================================================================ -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
           
@@ -423,6 +402,43 @@
             </div>
           </div>
 
+          <!-- ===============================================================
+               GRAPH 3: DAILY AVERAGE AS RANDOM SUGAR (RBS) TREND
+               Spans Full Width on Tablet (md:col-span-2)
+          ================================================================ -->
+          <div class="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2 w-full md:col-span-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm">📊</span>
+                <span class="text-xs md:text-sm font-black uppercase tracking-wider text-slate-800">Daily Average (Random Sugar) Trend</span>
+              </div>
+              <span id="chart-avg-points" class="font-mono text-[9px] md:text-xs text-slate-400 font-bold">0 Days</span>
+            </div>
+
+            <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 space-y-1 text-[8.5px] md:text-[10px]">
+              <div class="flex items-center justify-between flex-wrap gap-1">
+                <span class="font-bold text-slate-600">Daily Average (RBS) Status:</span>
+                <span class="flex items-center gap-1 text-emerald-700 font-bold"><span class="w-2 h-2 rounded-full bg-[#10b981]"></span> Good (&le;140)</span>
+                <span class="flex items-center gap-1 text-amber-700 font-bold"><span class="w-2 h-2 rounded-full bg-[#f59e0b]"></span> Moderate (141-199)</span>
+                <span class="flex items-center gap-1 text-rose-700 font-bold"><span class="w-2 h-2 rounded-full bg-[#ef4444]"></span> Terror (&ge;200)</span>
+              </div>
+              <div class="flex items-center justify-between flex-wrap gap-1 pt-1 border-t border-slate-200/80 font-mono font-bold">
+                <span class="text-rose-600">--- High: 180</span>
+                <span class="text-emerald-600">--- Normal: 140</span>
+                <span class="text-amber-600">--- Below: 70</span>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto no-scrollbar w-full border border-slate-100 rounded-xl bg-slate-50/40 p-1">
+              <div id="avg-chart-wrapper" class="relative h-48 w-full min-w-[320px]">
+                <canvas id="dailyAvgChart"></canvas>
+                <div id="avg-empty-msg" class="hidden absolute inset-0 flex items-center justify-center text-xs text-slate-400 font-medium">
+                  Log sugar checkpoints to render daily average trend.
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <!-- DATEWISE ARCHIVE: FULL 100% WIDTH -->
@@ -480,11 +496,12 @@
     let isFirebaseActive = false;
     let beforeChartInstance = null;
     let afterChartInstance = null;
+    let dailyAvgChartInstance = null; // Instance for Third Graph
 
     localStorage.clear();
 
     /* ====================================================================
-       2. PWA INSTALLATION LOGIC (CHROME, ANDROID, TABLET, IPAD)
+       2. PWA INSTALLATION LOGIC
     ==================================================================== */
     let deferredPrompt = null;
 
@@ -509,7 +526,6 @@
         if (isIOS) {
           document.getElementById("ios-install-banner").classList.remove("hidden");
         } else {
-          // If in an iframe or unsupported browser:
           showToast("To install: Open in Chrome/Safari ➔ Tap menu (⋮ or Share) ➔ 'Install App' / 'Add to Home screen'", "info");
         }
       }
@@ -800,7 +816,7 @@
     }
 
     /* ====================================================================
-       7. DEDUPLICATED CLOUD PRESCRIPTIONS (FIXES DUPLICATES)
+       7. DEDUPLICATED CLOUD PRESCRIPTIONS
     ==================================================================== */
     const DEFAULT_PRESCRIPTIONS = [
       { id: "rx_morn_istamet", name: "ISTAMET TAB 500MG", dose: "1 Tab", slot: "Morning (Breakfast)", timing: "After Breakfast", freq: "Daily", targetTime: "08:30 AM" },
@@ -1439,7 +1455,6 @@
       const ist = getIST();
       const logs = await loadItems("medicine_logs");
 
-      // Check Wednesday constraint for weekly med
       if (med.freq === "Weekly" || med.slot.includes("Weekly") || med.slot.includes("Wednesday")) {
         if (ist.dayName !== "Wednesday") {
           showToast("VAST IWO D3 can strictly only be taken on Wednesdays!", "warn");
@@ -1681,28 +1696,39 @@
     }
 
     /* ====================================================================
-       14. TWO SPLIT GLYCEMIC TREND GRAPHS (RESPONSIVE TABLET EXPANSION)
+       14. THREE GLYCEMIC TREND GRAPHS (BEFORE, AFTER & DAILY AVERAGE RBS)
     ==================================================================== */
-    function renderDualSugarTrendCharts(sugars) {
+    function renderTripleSugarTrendCharts(sugars) {
       const beforeCanvas = document.getElementById("beforeFoodChart");
       const afterCanvas = document.getElementById("afterFoodChart");
+      const avgCanvas = document.getElementById("dailyAvgChart");
+
       const beforeEmpty = document.getElementById("before-empty-msg");
       const afterEmpty = document.getElementById("after-empty-msg");
+      const avgEmpty = document.getElementById("avg-empty-msg");
+
       const beforeWrapper = document.getElementById("before-chart-wrapper");
       const afterWrapper = document.getElementById("after-chart-wrapper");
+      const avgWrapper = document.getElementById("avg-chart-wrapper");
 
-      if (!beforeCanvas || !afterCanvas) return;
+      if (!beforeCanvas || !afterCanvas || !avgCanvas) return;
 
       if (!sugars || sugars.length === 0) {
         if (beforeChartInstance) beforeChartInstance.destroy();
         if (afterChartInstance) afterChartInstance.destroy();
+        if (dailyAvgChartInstance) dailyAvgChartInstance.destroy();
+
         beforeEmpty.classList.remove("hidden");
         afterEmpty.classList.remove("hidden");
+        avgEmpty.classList.remove("hidden");
+
         document.getElementById("chart-before-points").innerText = "0 Points";
         document.getElementById("chart-after-points").innerText = "0 Points";
+        document.getElementById("chart-avg-points").innerText = "0 Days";
         return;
       }
 
+      // Sort chronological dates (oldest to newest)
       const uniqueDates = Array.from(new Set(sugars.map(s => parseEntryDateTime(s).dateKey))).filter(Boolean);
       uniqueDates.sort((a, b) => {
         const [d1, m1, y1] = a.split('/').map(Number);
@@ -1710,20 +1736,29 @@
         return new Date(y1, m1 - 1, d1).getTime() - new Date(y2, m2 - 1, d2).getTime();
       });
 
+      // 1. Data for Before Food
       const beforeLabels = [];
       const beforeValues = [];
       const beforeDotColors = [];
       const beforeMeta = [];
 
+      // 2. Data for After Food
       const afterLabels = [];
       const afterValues = [];
       const afterDotColors = [];
       const afterMeta = [];
 
+      // 3. Data for Daily Average (Random Sugar)
+      const avgLabels = [];
+      const avgValues = [];
+      const avgDotColors = [];
+      const avgMeta = [];
+
       uniqueDates.forEach(dateStr => {
         const daySugars = sugars.filter(s => parseEntryDateTime(s).dateKey === dateStr);
         const shortDate = dateStr.slice(0, 5);
 
+        // Before Food Checkpoints
         const mornPre = daySugars.find(s => s.slot === "Morning Before Food");
         const noonPre = daySugars.find(s => s.slot === "Noon Before Food");
         const evePre = daySugars.find(s => s.slot === "Evening/Night Before Food");
@@ -1747,6 +1782,7 @@
           beforeMeta.push({ date: dateStr, slot: "Eve Pre-Dinner", val: evePre.value });
         }
 
+        // After Food Checkpoints
         const mornPost = daySugars.find(s => s.slot === "Morning After Food");
         const noonPost = daySugars.find(s => s.slot === "Noon After Food");
         const evePost = daySugars.find(s => s.slot === "Evening/Night After Food");
@@ -1769,22 +1805,42 @@
           afterDotColors.push("#3b82f6");
           afterMeta.push({ date: dateStr, slot: "Eve Post-Dinner", val: evePost.value });
         }
+
+        // Daily Average (Random Blood Sugar)
+        if (daySugars.length > 0) {
+          const dayAvg = Math.round(daySugars.reduce((a, c) => a + c.value, 0) / daySugars.length);
+          avgLabels.push(shortDate);
+          avgValues.push(dayAvg);
+
+          // Dot Color by RBS Standard
+          if (dayAvg <= 140) {
+            avgDotColors.push("#10b981"); // Good
+          } else if (dayAvg <= 199) {
+            avgDotColors.push("#f59e0b"); // Moderate
+          } else {
+            avgDotColors.push("#ef4444"); // Terror
+          }
+
+          avgMeta.push({ date: dateStr, avg: dayAvg, checksCount: daySugars.length });
+        }
       });
 
       document.getElementById("chart-before-points").innerText = `${beforeValues.length} Points`;
       document.getElementById("chart-after-points").innerText = `${afterValues.length} Points`;
+      document.getElementById("chart-avg-points").innerText = `${avgValues.length} Days`;
 
-      // On tablet, allow the chart to stretch to 100% width cleanly
       const isTabletScreen = window.innerWidth >= 768;
       if (isTabletScreen) {
         beforeWrapper.style.minWidth = "100%";
         afterWrapper.style.minWidth = "100%";
+        avgWrapper.style.minWidth = "100%";
       } else {
         beforeWrapper.style.minWidth = Math.max(320, beforeLabels.length * 52) + "px";
         afterWrapper.style.minWidth = Math.max(320, afterLabels.length * 52) + "px";
+        avgWrapper.style.minWidth = Math.max(320, avgLabels.length * 52) + "px";
       }
 
-      // BUILD GRAPH 1: BEFORE FOOD
+      // ----------------- GRAPH 1: BEFORE FOOD -----------------
       if (beforeChartInstance) beforeChartInstance.destroy();
       if (beforeValues.length === 0) {
         beforeEmpty.classList.remove("hidden");
@@ -1864,7 +1920,7 @@
                   },
                   label: (ctx) => {
                     if (!ctx || ctx.datasetIndex !== 0 || !ctx.parsed || ctx.parsed.y === null) return "";
-                    return ` ${ctx.parsed.y} mg/dL (Indian Limit: <100)`;
+                    return ` ${ctx.parsed.y} mg/dL (Limit: <100)`;
                   }
                 },
                 titleFont: { size: 9, weight: "bold" },
@@ -1880,7 +1936,7 @@
         beforeWrapper.parentElement.scrollLeft = beforeWrapper.parentElement.scrollWidth;
       }
 
-      // BUILD GRAPH 2: AFTER FOOD
+      // ----------------- GRAPH 2: AFTER FOOD -----------------
       if (afterChartInstance) afterChartInstance.destroy();
       if (afterValues.length === 0) {
         afterEmpty.classList.remove("hidden");
@@ -1960,7 +2016,7 @@
                   },
                   label: (ctx) => {
                     if (!ctx || ctx.datasetIndex !== 0 || !ctx.parsed || ctx.parsed.y === null) return "";
-                    return ` ${ctx.parsed.y} mg/dL (Indian Limit: <140)`;
+                    return ` ${ctx.parsed.y} mg/dL (Limit: <140)`;
                   }
                 },
                 titleFont: { size: 9, weight: "bold" },
@@ -1974,6 +2030,102 @@
           }
         });
         afterWrapper.parentElement.scrollLeft = afterWrapper.parentElement.scrollWidth;
+      }
+
+      // ----------------- GRAPH 3: DAILY AVERAGE (RANDOM SUGAR - RBS) -----------------
+      if (dailyAvgChartInstance) dailyAvgChartInstance.destroy();
+      if (avgValues.length === 0) {
+        avgEmpty.classList.remove("hidden");
+      } else {
+        avgEmpty.classList.add("hidden");
+        const avgCtx = avgCanvas.getContext("2d");
+
+        dailyAvgChartInstance = new Chart(avgCtx, {
+          type: "line",
+          data: {
+            labels: avgLabels,
+            datasets: [
+              {
+                label: "Daily Average",
+                data: avgValues,
+                borderColor: "rgba(99, 102, 241, 0.65)", // Indigo line
+                backgroundColor: "rgba(99, 102, 241, 0.05)",
+                borderWidth: 2.5,
+                tension: 0.3,
+                pointBackgroundColor: avgDotColors,
+                pointBorderColor: "#ffffff",
+                pointBorderWidth: 2,
+                pointRadius: 7,
+                pointHoverRadius: 9.5,
+                spanGaps: true
+              },
+              {
+                label: "High Limit (180)",
+                data: avgLabels.map(() => 180),
+                borderColor: "rgba(239, 68, 68, 0.8)",
+                borderWidth: 1.5,
+                borderDash: [5, 4],
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                fill: false
+              },
+              {
+                label: "Normal Limit (140)",
+                data: avgLabels.map(() => 140),
+                borderColor: "rgba(16, 185, 129, 0.85)",
+                borderWidth: 1.5,
+                borderDash: [5, 4],
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                fill: false
+              },
+              {
+                label: "Below Limit (70)",
+                data: avgLabels.map(() => 70),
+                borderColor: "rgba(245, 158, 11, 0.85)",
+                borderWidth: 1.5,
+                borderDash: [5, 4],
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                fill: false
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "nearest", intersect: true },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: "#0f172a",
+                padding: 10,
+                cornerRadius: 12,
+                filter: (item) => Boolean(item && item.datasetIndex === 0),
+                callbacks: {
+                  title: (items) => {
+                    if (!items || !items.length || !items[0]) return "";
+                    const idx = items[0].dataIndex;
+                    if (idx === undefined || !avgMeta || !avgMeta[idx]) return "";
+                    const m = avgMeta[idx];
+                    return `${m.date.slice(0, 5)} • Daily Avg (${m.checksCount} checks)`;
+                  },
+                  label: (ctx) => {
+                    if (!ctx || ctx.datasetIndex !== 0 || !ctx.parsed || ctx.parsed.y === null) return "";
+                    return ` ${ctx.parsed.y} mg/dL (Random Target: <140)`;
+                  }
+                },
+                titleFont: { size: 9, weight: "bold" },
+                bodyFont: { size: 15, weight: "900" }
+              }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: "#64748b", font: { size: 9, weight: "bold" } } },
+              y: { min: 40, suggestedMax: 240, grid: { color: "rgba(226, 232, 240, 0.6)" }, ticks: { color: "#64748b", font: { size: 9 } } }
+            }
+          }
+        });
+        avgWrapper.parentElement.scrollLeft = avgWrapper.parentElement.scrollWidth;
       }
     }
 
@@ -2026,7 +2178,8 @@
         spikeCard.classList.add("hidden");
       }
 
-      renderDualSugarTrendCharts(sugars);
+      // Render all 3 graphs (Before Food, After Food & Daily Average Random Sugar)
+      renderTripleSugarTrendCharts(sugars);
 
       const archive = document.getElementById("date-archive-list");
       archive.innerHTML = "";
